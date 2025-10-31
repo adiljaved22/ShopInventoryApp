@@ -1,0 +1,38 @@
+package com.example.shopinventoryapp
+
+import androidx.compose.runtime.Composable
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+
+@Composable
+fun Navigation() {
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = "DashBoard") {
+        composable("DashBoard") {
+            DashBoard(
+                NavigateToAddItem = { navController.navigate("AddItem") },
+                NavigateToViewItem = { navController.navigate("ViewItems") },
+                NavigateToSellItem = { navController.navigate("SellItems") }
+            )
+        }
+        composable("AddItem") {
+            AddItem(NavigateToAddItem = { navController.navigate("AddItem") })
+        }
+        composable("ViewItems")
+        {
+            ViewItems(
+                NavigateToViewItem = { navController.navigate("ViewItems") }
+            )
+        }
+        composable("SellItems")
+        {
+            SellItems(
+                NavigateToSellItem = { navController.navigate("SellItems") }
+            )
+        }
+
+
+    }
+
+}

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "644271065757",
+    "project_id": "shopinventoryapp-b9323",
+    "storage_bucket": "shopinventoryapp-b9323.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:644271065757:android:78a9be3a532d8d6207a274",
+        "android_client_info": {
+          "package_name": "com.example.shopinventoryapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApeyH_mgEOLJ4pk79ZHijLulOWHFzyDnY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
