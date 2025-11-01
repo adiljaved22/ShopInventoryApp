@@ -1,40 +1,35 @@
 package com.example.shopinventoryapp
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.text.KeyboardOptions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ViewItems(NavigateToViewItem: () -> Unit,
+fun ViewItems(
+    NavigateToViewItem: () -> Unit,
     viewModel: AppViewModel = viewModel()
 ) {
     val list by viewModel.items.collectAsState(initial = emptyList())
 
-    // ✅ Firestore data load karwana jab screen open ho
     LaunchedEffect(Unit) {
         viewModel.displayItems()
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Inventory Items") }
-            )
+            TopAppBar(title = { Text("Inventory Items") })
         }
     ) { padding ->
         if (list.isEmpty()) {
@@ -44,10 +39,9 @@ fun ViewItems(NavigateToViewItem: () -> Unit,
                     .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "No items found", fontSize = 18.sp)
+                Text("No items found", fontSize = 18.sp)
             }
         } else {
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -56,7 +50,7 @@ fun ViewItems(NavigateToViewItem: () -> Unit,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(list) { item ->
-                    ItemCard(item)
+                    ItemCard(item, viewModel)
                 }
             }
         }
@@ -64,42 +58,113 @@ fun ViewItems(NavigateToViewItem: () -> Unit,
 }
 
 @Composable
-fun ItemCard(item: Items) {
+fun ItemCard(item: Items, viewModel: AppViewModel) {
+    var showEditDialog by remember { mutableStateOf(false) }
+
     Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(6.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-        ) {
+        Column(modifier = Modifier.padding(16.dp)) {
 
-            Text(
-                text = item.name,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-
+            Text(item.name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
             Spacer(modifier = Modifier.height(6.dp))
-
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Price: Rs ${item.unitPrice}")
-                Text(text = "Qty: ${item.quantity}")
+                Text("Price: Rs ${item.salesPrice}")
+                Text("Qty: ${item.quantity}")
             }
 
             Spacer(modifier = Modifier.height(6.dp))
+            Text("Date: ${item.date}", fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+            Spacer(modifier = Modifier.height(8.dp))
 
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(onClick = { showEditDialog = true }) {
+                    Text("Edit")
+                }
+                Button(
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error),
+                    onClick = {
+                        viewModel.deleteItem(item.firestoreId)
+                    }
+                ) {
+                    Text("Delete")
+                }
+            }
+        }
+    }
 
-            Text(
-                text = "Date: ${item.date}",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.primary
-            )
+    if (showEditDialog) {
+        EditItemDialog(item, onDismiss = { showEditDialog = false }) { updatedItem ->
+            viewModel.updateItem(updatedItem)
+            showEditDialog = false
+        }
+    }
+}
+
+@Composable
+fun EditItemDialog(
+    item: Items,
+    onDismiss: () -> Unit,
+    onSave: (Items) -> Unit
+) {
+    var name by remember { mutableStateOf(item.name) }
+    var price by remember { mutableStateOf(item.unitPrice.toString()) }
+    var quantity by remember { mutableStateOf(item.quantity.toString()) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            tonalElevation = 8.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text("Edit Item", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name") })
+                OutlinedTextField(
+                    value = price,
+                    onValueChange = { price = it },
+                    label = { Text("Unit Price") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+                OutlinedTextField(
+                    value = quantity,
+                    onValueChange = { quantity = it },
+                    label = { Text("Quantity") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Button(onClick = onDismiss) { Text("Cancel") }
+                    Button(onClick = {
+                        val updatedItem = item.copy(
+                            name = name,
+                            unitPrice = price.toDoubleOrNull() ?: 0.0,
+                            quantity = quantity.toIntOrNull() ?: 0
+                        )
+                        onSave(updatedItem)
+                    }) {
+                        Text("Save")
+                    }
+                }
+            }
         }
     }
 }

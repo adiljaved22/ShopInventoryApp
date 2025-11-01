@@ -1,10 +1,6 @@
 package com.example.shopinventoryapp
-
-import android.content.ClipData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -21,8 +17,18 @@ class AppViewModel : ViewModel() {
 
 
     }
-
     fun displayItems() {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("items").addSnapshotListener { snapshot, e ->
+            if (snapshot != null) {
+                val itemsList = snapshot.toObjects(Items::class.java)
+                _items.value = itemsList
+            }
+        }
+    }
+
+
+    /* fun displayItems() {
         val db = FirebaseFirestore.getInstance()
         db.collection("items")
             .get()
@@ -39,6 +45,22 @@ class AppViewModel : ViewModel() {
                 println("Error h bhai: $exception")
             }
 
+    }*/
+    fun deleteItem(firestoreId: String) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("items").document(firestoreId)
+            .delete()
+            .addOnSuccessListener { println("Item Deleted") }
+            .addOnFailureListener { e -> println("Error deleting item: $e") }
     }
 
+
+    fun updateItem(item: Items) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("items").document(item.firestoreId)
+            .set(item)
+            .addOnSuccessListener { println("Item Updated") }
+            .addOnFailureListener { e -> println("Error updating item: $e") }
+    }
 }
+

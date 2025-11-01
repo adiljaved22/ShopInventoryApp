@@ -18,7 +18,7 @@ fun Navigation() {
             )
         }
         composable("AddItem") {
-            AddItem(onBack = { navController.popBackStack() } ,{ navController.navigate("AddItem") })
+            AddItem(onBack = { navController.popBackStack() } ,NavigateToAddItem = { navController.navigate("AddItem") })
         }
         composable("ViewItems")
         {

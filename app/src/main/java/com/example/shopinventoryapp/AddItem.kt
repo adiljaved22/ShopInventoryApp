@@ -20,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.util.Calendar
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddItem(
@@ -40,48 +42,45 @@ fun AddItem(
     NavigateToAddItem: () -> Unit,
     viewModel: AppViewModel = viewModel()
 ) {
-
-    var ItemName by remember { mutableStateOf("") }
-    var unitPrice by remember { mutableStateOf("") }
+    var itemName by remember { mutableStateOf("") }
+    var totalCost by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
+    var unitPrice by remember { mutableStateOf("") }
+    var salesPrice by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
-
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 40.dp, start = 20.dp, end = 20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "Add Items", fontSize = 30.sp)
+
+    LaunchedEffect(totalCost, quantity) {
+        val cost = totalCost.toDoubleOrNull()
+        val qty = quantity.toIntOrNull()
+
+        if (cost != null && qty != null && qty > 0) {
+            val unit = cost / qty
+            unitPrice = unit.toString()
+        } else {
+            unitPrice = ""
+        }
     }
-    val datePickerDialog = DatePickerDialog(
-        context,
-        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            date = "$dayOfMonth/${month + 1}/$year"
-        },
-        calendar.get(Calendar.YEAR),
-        calendar.get(Calendar.MONTH),
-        calendar.get(Calendar.DAY_OF_MONTH)
-    )
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Add Item") }
-            )
-        }
+        topBar = { TopAppBar(title = { Text("Add Item") }) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
-                .padding(16.dp)
-                .fillMaxWidth(),
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-
-
+            val datePickerDialog = DatePickerDialog(
+                context,
+                { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+                    date = "$dayOfMonth/${month + 1}/$year"
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
             OutlinedTextField(
                 value = date,
                 onValueChange = {},
@@ -95,23 +94,20 @@ fun AddItem(
                 readOnly = true
             )
 
-
             OutlinedTextField(
-                value = ItemName,
-                onValueChange = { ItemName = it },
+                value = itemName,
+                onValueChange = { itemName = it },
                 label = { Text("Item Name") },
                 modifier = Modifier.fillMaxWidth()
             )
 
-
             OutlinedTextField(
-                value = unitPrice,
-                onValueChange = { unitPrice = it },
-                label = { Text("Unit Price") },
+                value = totalCost,
+                onValueChange = { totalCost = it },
+                label = { Text("Purchase Amount") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
-
 
             OutlinedTextField(
                 value = quantity,
@@ -121,34 +117,46 @@ fun AddItem(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Column(
+
+            OutlinedTextField(
+                value = unitPrice,
+                onValueChange = {},
+                label = { Text("Unit Price ") },
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
+                readOnly = true
+            )
 
-                Button(onClick = {
-                    if (ItemName.isNotEmpty() && unitPrice.isNotEmpty() && quantity.isNotEmpty()) {
-                        val safeQuantity = quantity.toDoubleOrNull()?.toInt() ?: 0
-                        val safeUnitPrice = unitPrice.toDoubleOrNull() ?: 0.0
+            OutlinedTextField(
+                value = salesPrice,
+                onValueChange = { salesPrice = it },
+                label = { Text("Sales Price") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
 
+            Button(
+                onClick = {
+                    if (itemName.isNotEmpty() && totalCost.isNotEmpty() && quantity.isNotEmpty() && salesPrice.isNotEmpty()) {
                         viewModel.addItems(
                             Items(
                                 date = date,
-                                name = ItemName,
-                                unitPrice = safeUnitPrice,
-                                quantity = safeQuantity
+
+                                name = itemName,
+                                unitPrice = unitPrice.toDoubleOrNull() ?: 0.0,
+                                quantity = quantity.toInt(),
+                                salesPrice = salesPrice.toDoubleOrNull() ?: 0.0
                             )
+
                         )
                         onBack()
+                        Toast.makeText(context, "Item Added", Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(context, "Please fill all the fields", Toast.LENGTH_SHORT)
-                            .show()
+                        Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
                     }
-                }) {
-                    Text("Save")
-                }
-
+                },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text("Save")
             }
         }
     }

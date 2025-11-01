@@ -7,5 +7,8 @@ data class Items(
     val date: String = "",
     val name: String = "",
     val unitPrice: Double = 0.0,
-    val quantity: Int = 0
+    val quantity: Int = 0,
+    val salesPrice: Double = 0.0
 )
+
+
