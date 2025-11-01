@@ -2,9 +2,9 @@ package com.example.shopinventoryapp
 
 import android.app.DatePickerDialog
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -30,11 +30,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddItem(NavigateToAddItem: () -> Unit) {
+fun AddItem(
+    onBack: () -> Unit,
+    NavigateToAddItem: () -> Unit,
+    viewModel: AppViewModel = viewModel()
+) {
+
     var ItemName by remember { mutableStateOf("") }
     var unitPrice by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
@@ -120,12 +126,29 @@ fun AddItem(NavigateToAddItem: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Button(
-                    onClick = { },
 
-                    ) {
+                Button(onClick = {
+                    if (ItemName.isNotEmpty() && unitPrice.isNotEmpty() && quantity.isNotEmpty()) {
+                        val safeQuantity = quantity.toDoubleOrNull()?.toInt() ?: 0
+                        val safeUnitPrice = unitPrice.toDoubleOrNull() ?: 0.0
+
+                        viewModel.addItems(
+                            Items(
+                                date = date,
+                                name = ItemName,
+                                unitPrice = safeUnitPrice,
+                                quantity = safeQuantity
+                            )
+                        )
+                        onBack()
+                    } else {
+                        Toast.makeText(context, "Please fill all the fields", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }) {
                     Text("Save")
                 }
+
             }
         }
     }

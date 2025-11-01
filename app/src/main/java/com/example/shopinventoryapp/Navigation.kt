@@ -1,6 +1,7 @@
 package com.example.shopinventoryapp
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -17,12 +18,12 @@ fun Navigation() {
             )
         }
         composable("AddItem") {
-            AddItem(NavigateToAddItem = { navController.navigate("AddItem") })
+            AddItem(onBack = { navController.popBackStack() } ,{ navController.navigate("AddItem") })
         }
         composable("ViewItems")
         {
             ViewItems(
-                NavigateToViewItem = { navController.navigate("ViewItems") }
+               viewModel = viewModel(), NavigateToViewItem = { navController.navigate("ViewItems") }
             )
         }
         composable("SellItems")
