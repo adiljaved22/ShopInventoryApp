@@ -50,7 +50,7 @@ fun ViewItems(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(list) { item ->
-                    ItemCard(item, viewModel)
+                    ItemCard(item,viewModel)
                 }
             }
         }

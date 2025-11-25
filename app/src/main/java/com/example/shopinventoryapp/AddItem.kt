@@ -5,7 +5,6 @@ import android.widget.DatePicker
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
@@ -30,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.util.Calendar
 
@@ -43,7 +41,7 @@ fun AddItem(
     viewModel: AppViewModel = viewModel()
 ) {
     var itemName by remember { mutableStateOf("") }
-    var totalCost by remember { mutableStateOf("") }
+    var purchaseAmount by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
     var unitPrice by remember { mutableStateOf("") }
     var salesPrice by remember { mutableStateOf("") }
@@ -51,12 +49,12 @@ fun AddItem(
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
 
-    LaunchedEffect(totalCost, quantity) {
-        val cost = totalCost.toDoubleOrNull()
+    LaunchedEffect(purchaseAmount, quantity) {
+        val purchaseAmount = purchaseAmount.toDoubleOrNull()
         val qty = quantity.toIntOrNull()
 
-        if (cost != null && qty != null && qty > 0) {
-            val unit = cost / qty
+        if (purchaseAmount != null && qty != null && qty > 0) {
+            val unit = purchaseAmount / qty
             unitPrice = unit.toString()
         } else {
             unitPrice = ""
@@ -102,8 +100,8 @@ fun AddItem(
             )
 
             OutlinedTextField(
-                value = totalCost,
-                onValueChange = { totalCost = it },
+                value = purchaseAmount,
+                onValueChange = { purchaseAmount = it },
                 label = { Text("Purchase Amount") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
@@ -136,7 +134,7 @@ fun AddItem(
 
             Button(
                 onClick = {
-                    if (itemName.isNotEmpty() && totalCost.isNotEmpty() && quantity.isNotEmpty() && salesPrice.isNotEmpty()) {
+                    if (itemName.isNotEmpty() && purchaseAmount.isNotEmpty() && quantity.isNotEmpty() && salesPrice.isNotEmpty() && date.isNotEmpty() && unitPrice.isNotEmpty()) {
                         viewModel.addItems(
                             Items(
                                 date = date,
