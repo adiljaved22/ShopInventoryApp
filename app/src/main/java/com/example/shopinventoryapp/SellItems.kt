@@ -24,10 +24,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SellItems(NavigateToSellItem: () -> Unit) {
+fun SellItems(NavigateToSellItem: () -> Unit,viewModel: AppViewModel = viewModel(),onBack: () -> Unit) {
     var BuyerName by remember { mutableStateOf("") }
     var ItemName by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
@@ -72,7 +73,15 @@ fun SellItems(NavigateToSellItem: () -> Unit) {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
-            Button(onClick = {}) {
+            Button(onClick = {
+               viewModel.addBuyerDetails(
+                    BuyerDetails(
+                        buyerName = BuyerName,
+                        itemName = ItemName,
+                        quantity = quantity.toInt()
+                    ))
+                onBack()
+            }) {
                 Text("Sell")
             }
             Box(

@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.StateFlow
 class AppViewModel : ViewModel() {
     private val _items = MutableStateFlow<List<Items>>(emptyList())
     val items: StateFlow<List<Items>> = _items
+    private val _buyerDetails = MutableStateFlow<List<BuyerDetails>>(emptyList())
+    val buyerDetails: StateFlow<List<BuyerDetails>> = _buyerDetails
+
     fun addItems(item: Items) {
         val db = FirebaseFirestore.getInstance()
         val id = db.collection("items").document()
@@ -17,6 +20,15 @@ class AppViewModel : ViewModel() {
             .addOnFailureListener { e -> println("Item Failed,$e") }
 
 
+    }
+
+    fun addBuyerDetails(details: BuyerDetails) {
+        val db = FirebaseFirestore.getInstance()
+        val id = db.collection("buyerDetails").document()
+        val buyerId = details.copy(firestoreId = id.id)
+        id.set(buyerId)
+            .addOnSuccessListener { println("Buyer Details Added") }
+            .addOnFailureListener { e -> println("Buyer Details Failed,$e") }
     }
 
     fun displayItems() {
@@ -29,6 +41,23 @@ class AppViewModel : ViewModel() {
         }
     }
 
+    fun displayBuyerDetails()
+    {
+       FirebaseFirestore.getInstance()
+            .collection("buyerDetails")
+         .get().addOnSuccessListener { result ->
+             println("new baba")
+                val buyerDetailsList = mutableListOf<BuyerDetails>()
+                for (document in result) {
+                    val buyerDetails = document.toObject(BuyerDetails::class.java)
+                    buyerDetailsList.add(buyerDetails)
+                }
+                _buyerDetails.value = buyerDetailsList
+            }
+            .addOnFailureListener { exception ->
+                println("Error h bhai: $exception")
+            }
+    }
 
     /*  fun displayItems() {
          val db = FirebaseFirestore.getInstance()
@@ -50,8 +79,8 @@ class AppViewModel : ViewModel() {
      }*/
     fun deleteItem(firestoreId: String) {
         val db = FirebaseFirestore.getInstance()
-        db.collection("items").document(firestoreId)
-            .delete()
+        val del = db.collection("items").document(firestoreId)
+        del.delete()
             .addOnSuccessListener { println("Item Deleted") }
             .addOnFailureListener { e -> println("Error deleting item: $e") }
     }

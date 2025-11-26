@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.rounded.Details
 import androidx.compose.material.icons.rounded.EventAvailable
 import androidx.compose.material.icons.rounded.Sell
 import androidx.compose.material.icons.rounded.ViewList
@@ -38,6 +39,7 @@ fun DashBoard(
     NavigateToAddItem: () -> Unit,
     NavigateToViewItem: () -> Unit,
     NavigateToSellItem: () -> Unit,
+    NavigateToBuyerDetails: () -> Unit
 
     ) {
     Scaffold(
@@ -142,6 +144,30 @@ fun DashBoard(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Sell Items",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Column(
+                modifier = Modifier
+                    .size(120.dp)
+                    .background(Color.Green, shape = RoundedCornerShape(25.dp))
+                    .clickable { NavigateToBuyerDetails() }
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Details,
+                    contentDescription = "View Details",
+                    tint = Color.White,
+                    modifier = Modifier.size(32.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Buyer Details",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp

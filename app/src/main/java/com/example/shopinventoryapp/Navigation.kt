@@ -14,7 +14,8 @@ fun Navigation() {
             DashBoard(
                 NavigateToAddItem = { navController.navigate("AddItem") },
                 NavigateToViewItem = { navController.navigate("ViewItems") },
-                NavigateToSellItem = { navController.navigate("SellItems") }
+                NavigateToSellItem = { navController.navigate("SellItems") },
+                NavigateToBuyerDetails = { navController.navigate("BuyerDetails") }
             )
         }
         composable("AddItem") {
@@ -28,12 +29,19 @@ fun Navigation() {
         }
         composable("SellItems")
         {
-            SellItems(
+            SellItems(onBack = { navController.popBackStack() },
                 NavigateToSellItem = { navController.navigate("SellItems") }
             )
         }
+        composable("BuyerDetails")
+        {
+            BuyerDetails(
+                NavigateToBuyerDetails = { navController.navigate("BuyerDetails") }
+            )
+        }
+    }
+
 
 
     }
 
-}

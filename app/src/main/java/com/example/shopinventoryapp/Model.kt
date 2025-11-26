@@ -10,5 +10,11 @@ data class Items(
     val quantity: Int = 0,
     val salesPrice: Double = 0.0
 )
+data class BuyerDetails(
+    val firestoreId: String = "",
+    val buyerName: String = "",
+    val itemName: String = "",
+    val quantity: Int = 0
+)
 
 
