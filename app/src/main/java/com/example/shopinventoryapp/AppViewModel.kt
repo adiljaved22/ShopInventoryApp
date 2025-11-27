@@ -40,13 +40,22 @@ class AppViewModel : ViewModel() {
             }
         }
     }
+    fun displayBuyerDetails() {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("buyerDetails").addSnapshotListener { snapshot, e ->
+            if (snapshot != null) {
+                val List = snapshot.toObjects(BuyerDetails::class.java)
+                _buyerDetails.value = List
+            }
+        }
+    }
 
-    fun displayBuyerDetails()
+    /*fun displayBuyerDetails()
     {
        FirebaseFirestore.getInstance()
             .collection("buyerDetails")
          .get().addOnSuccessListener { result ->
-             println("new baba")
+             println("Added")
                 val buyerDetailsList = mutableListOf<BuyerDetails>()
                 for (document in result) {
                     val buyerDetails = document.toObject(BuyerDetails::class.java)
@@ -55,9 +64,9 @@ class AppViewModel : ViewModel() {
                 _buyerDetails.value = buyerDetailsList
             }
             .addOnFailureListener { exception ->
-                println("Error h bhai: $exception")
+                println("Not Added: $exception")
             }
-    }
+    }*/
 
     /*  fun displayItems() {
          val db = FirebaseFirestore.getInstance()
@@ -94,12 +103,12 @@ class AppViewModel : ViewModel() {
             .addOnFailureListener { e -> println("Error updating item: $e") }
     }
 
-    fun sellItem(item: Items) {
+    /*fun sellItem(item: Items) {
         val db = FirebaseFirestore.getInstance()
         val id = db.collection("items").document(item.firestoreId)
         val itemId = item.copy(firestoreId = id.id)
         id.set(itemId)
 
-    }
+    }*/
 }
 

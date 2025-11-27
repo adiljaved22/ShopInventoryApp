@@ -8,12 +8,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,12 +32,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SellItems(NavigateToSellItem: () -> Unit,viewModel: AppViewModel = viewModel(),onBack: () -> Unit) {
+fun SellItems(
+    NavigateToSellItem: () -> Unit,
+    viewModel: AppViewModel = viewModel(),
+    onBack: () -> Unit
+) {
     var BuyerName by remember { mutableStateOf("") }
     var ItemName by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
-
-
+    var isExpended by remember { mutableStateOf(false) }
+    val list by viewModel.items.collectAsState(initial = emptyList())
+    var selectedItem by remember { mutableStateOf("") }
     Scaffold(
         topBar = {
             TopAppBar(title = {
@@ -59,13 +68,39 @@ fun SellItems(NavigateToSellItem: () -> Unit,viewModel: AppViewModel = viewModel
                 modifier = Modifier.fillMaxWidth()
             )
 
-            OutlinedTextField(
-                value = ItemName,
-                onValueChange = { ItemName = it },
-                label = { Text("Item Name") },
+            ExposedDropdownMenuBox(
+                expanded = isExpended,
+                onExpandedChange = { isExpended = !isExpended })
+            {
+                OutlinedTextField(
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth(),
+                    value = selectedItem,
+                    onValueChange = {},
+                    label = { Text("Select Item") },
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpended) }
+                )
+                ExposedDropdownMenu(
+                    expanded = isExpended,
+                    onDismissRequest = { isExpended = false }) {
+                    list.forEach { item ->
+                        DropdownMenuItem(
 
-                modifier = Modifier.fillMaxWidth()
-            )
+
+                            text = { Text(text = item.name) },
+                            onClick = {
+                                selectedItem = item.name
+                                ItemName = item.name
+                                isExpended = false
+                            },
+                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                        )
+
+                    }
+                }
+            }
             OutlinedTextField(
                 value = quantity,
                 onValueChange = { quantity = it },
@@ -74,12 +109,13 @@ fun SellItems(NavigateToSellItem: () -> Unit,viewModel: AppViewModel = viewModel
                 modifier = Modifier.fillMaxWidth()
             )
             Button(onClick = {
-               viewModel.addBuyerDetails(
+                viewModel.addBuyerDetails(
                     BuyerDetails(
                         buyerName = BuyerName,
                         itemName = ItemName,
                         quantity = quantity.toInt()
-                    ))
+                    )
+                )
                 onBack()
             }) {
                 Text("Sell")
@@ -95,3 +131,6 @@ fun SellItems(NavigateToSellItem: () -> Unit,viewModel: AppViewModel = viewModel
     }
 
 }
+
+
+

@@ -138,11 +138,11 @@ fun AddItem(
                         viewModel.addItems(
                             Items(
                                 date = date,
-
                                 name = itemName,
                                 unitPrice = unitPrice.toDoubleOrNull() ?: 0.0,
                                 quantity = quantity.toInt(),
                                 salesPrice = salesPrice.toDoubleOrNull() ?: 0.0
+
                             )
 
                         )

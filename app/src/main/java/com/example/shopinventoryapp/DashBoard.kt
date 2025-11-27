@@ -126,6 +126,11 @@ fun DashBoard(
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            )
+            {
             Column(
                 modifier = Modifier
                     .size(120.dp)
@@ -153,7 +158,7 @@ fun DashBoard(
             Column(
                 modifier = Modifier
                     .size(120.dp)
-                    .background(Color.Green, shape = RoundedCornerShape(25.dp))
+                    .background(Color.Magenta, shape = RoundedCornerShape(25.dp))
                     .clickable { NavigateToBuyerDetails() }
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -174,6 +179,7 @@ fun DashBoard(
                 )
             }
 
+        }
         }
     }
 }
