@@ -40,6 +40,7 @@ class AppViewModel : ViewModel() {
             }
         }
     }
+
     fun displayBuyerDetails() {
         val db = FirebaseFirestore.getInstance()
         db.collection("buyerDetails").addSnapshotListener { snapshot, e ->
@@ -50,42 +51,6 @@ class AppViewModel : ViewModel() {
         }
     }
 
-    /*fun displayBuyerDetails()
-    {
-       FirebaseFirestore.getInstance()
-            .collection("buyerDetails")
-         .get().addOnSuccessListener { result ->
-             println("Added")
-                val buyerDetailsList = mutableListOf<BuyerDetails>()
-                for (document in result) {
-                    val buyerDetails = document.toObject(BuyerDetails::class.java)
-                    buyerDetailsList.add(buyerDetails)
-                }
-                _buyerDetails.value = buyerDetailsList
-            }
-            .addOnFailureListener { exception ->
-                println("Not Added: $exception")
-            }
-    }*/
-
-    /*  fun displayItems() {
-         val db = FirebaseFirestore.getInstance()
-         db.collection("items")
-             .get()
-             .addOnSuccessListener { result ->
-                 val itemsList = mutableListOf<Items>()
-                 for (document in result) {
-                     val item = document.toObject(Items::class.java)
-                     itemsList.add(item)
-                 }
-                 _items.value = itemsList
-                 println("Added Successfully")
-             }
-             .addOnFailureListener { exception ->
-                 println("Error h bhai: $exception")
-             }
-
-     }*/
     fun deleteItem(firestoreId: String) {
         val db = FirebaseFirestore.getInstance()
         val del = db.collection("items").document(firestoreId)
@@ -103,12 +68,28 @@ class AppViewModel : ViewModel() {
             .addOnFailureListener { e -> println("Error updating item: $e") }
     }
 
-    /*fun sellItem(item: Items) {
+    fun sellItem(buyerDetails: BuyerDetails, item: Items) {
         val db = FirebaseFirestore.getInstance()
         val id = db.collection("items").document(item.firestoreId)
-        val itemId = item.copy(firestoreId = id.id)
+        val itemId = item.copy(
+            firestoreId = id.id,
+            currentStock = item.currentStock - buyerDetails.requestedQuantity
+        )
         id.set(itemId)
 
-    }*/
-}
+        val buyerId = db.collection("buyerDetails").document()
 
+        val buyerDetails = BuyerDetails(
+            firestoreId = buyerId.id,
+            buyerName = buyerDetails.buyerName,
+            itemName = item.name,
+            requestedQuantity = buyerDetails.requestedQuantity,
+            total = buyerDetails.total,
+        )
+
+        buyerId.set(buyerDetails)
+
+    }
+
+
+}

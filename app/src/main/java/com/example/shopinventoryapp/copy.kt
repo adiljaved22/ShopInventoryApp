@@ -1,5 +1,4 @@
-package com.example.shopinventoryapp
-
+/*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,10 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.rounded.AddTask
 import androidx.compose.material.icons.rounded.Details
-import androidx.compose.material.icons.rounded.EventAvailable
 import androidx.compose.material.icons.rounded.Sell
 import androidx.compose.material.icons.rounded.ViewList
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,64 +29,55 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-
 @OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun DashBoard(
     NavigateToAddItem: () -> Unit,
     NavigateToViewItem: () -> Unit,
     NavigateToSellItem: () -> Unit,
     NavigateToBuyerDetails: () -> Unit
+
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Dashboard",
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            )
+            TopAppBar(title = {
+                Text(
+                    "DashBoard",
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            })
         }
     ) { paddingValues ->
+
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 20.dp),
+                .padding(paddingValues),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            Spacer(modifier = Modifier.height(20.dp))
-
+        )
+        {
             Text(
                 text = "Inventory Management",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
-                lineHeight = 36.sp
+                modifier = Modifier.padding(bottom = 30.dp),
+                lineHeight = 40.sp
             )
 
-            Spacer(modifier = Modifier.height(35.dp))
-
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-
 
                 Column(
                     modifier = Modifier
-                        .size(130.dp)
-                        .background(
-                            Color(0xFF9966CC),
-                            shape = RoundedCornerShape(25.dp)
-                        )
+                        .size(120.dp)
+                        .background(Color.LightGray, shape = RoundedCornerShape(25.dp))
                         .clickable { NavigateToAddItem() }
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -98,27 +85,23 @@ fun DashBoard(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.AddCircle,
-                        contentDescription = "Add Items",
+                        contentDescription = "Tasks",
                         tint = Color.White,
-                        modifier = Modifier.size(34.dp)
+                        modifier = Modifier.size(32.dp)
                     )
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Add Items",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 17.sp
+                        fontSize = 18.sp
                     )
                 }
 
-
                 Column(
                     modifier = Modifier
-                        .size(130.dp)
-                        .background(
-                            Color.Black,
-                            shape = RoundedCornerShape(25.dp)
-                        )
+                        .size(120.dp)
+                        .background(Color.Black, shape = RoundedCornerShape(25.dp))
                         .clickable { NavigateToViewItem() }
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -128,34 +111,27 @@ fun DashBoard(
                         imageVector = Icons.Rounded.ViewList,
                         contentDescription = "View Items",
                         tint = Color.White,
-                        modifier = Modifier.size(34.dp)
+                        modifier = Modifier.size(32.dp)
                     )
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "View Items",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 17.sp
+                        fontSize = 18.sp
                     )
                 }
             }
-
-            Spacer(modifier = Modifier.height(25.dp))
-
+            Spacer(modifier = Modifier.height(8.dp))
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-
-
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            )
+            {
                 Column(
                     modifier = Modifier
-                        .size(130.dp)
-                        .background(
-                            Color.Blue,
-                            shape = RoundedCornerShape(25.dp)
-                        )
+                        .size(120.dp)
+                        .background(Color.Blue, shape = RoundedCornerShape(25.dp))
                         .clickable { NavigateToSellItem() }
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -163,46 +139,44 @@ fun DashBoard(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Sell,
-                        contentDescription = "Buy Items",
+                        contentDescription = "Sell Items",
                         tint = Color.White,
-                        modifier = Modifier.size(34.dp)
+                        modifier = Modifier.size(32.dp)
                     )
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Buy Items",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 17.sp
+                        fontSize = 18.sp
                     )
                 }
-
+                Spacer(modifier = Modifier.height(8.dp))
                 Column(
                     modifier = Modifier
-                        .size(130.dp)
-                        .background(
-                            Color(0xFF008080),
-                            shape = RoundedCornerShape(25.dp)
-                        )
+                        .size(120.dp)
+                        .background(Color.Magenta, shape = RoundedCornerShape(25.dp))
                         .clickable { NavigateToBuyerDetails() }
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.AddTask,
+                        imageVector = Icons.Rounded.Details,
                         contentDescription = "View Details",
                         tint = Color.White,
-                        modifier = Modifier.size(34.dp)
+                        modifier = Modifier.size(32.dp)
                     )
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Buyer Details",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 17.sp
+                        fontSize = 18.sp
                     )
                 }
+
             }
         }
     }
-}
+}*/

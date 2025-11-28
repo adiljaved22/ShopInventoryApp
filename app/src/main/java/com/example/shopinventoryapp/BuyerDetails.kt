@@ -3,6 +3,7 @@ package com.example.shopinventoryapp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,9 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -26,13 +31,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BuyerDetails(NavigateToBuyerDetails: () -> Unit,viewModel: AppViewModel = viewModel()){
+fun BuyerDetails(
+    NavigateToBuyerDetails: () -> Unit,
+    viewModel: AppViewModel = viewModel(),
+    onBackClick: () -> Unit
+) {
 
 
     val details by viewModel.buyerDetails.collectAsState(initial = emptyList())
@@ -42,7 +53,20 @@ fun BuyerDetails(NavigateToBuyerDetails: () -> Unit,viewModel: AppViewModel = vi
     Text("Buyer Details")
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Buyer Details") })
+            TopAppBar(
+                title = { Text("Buyer Details") },
+
+                actions = {
+                    IconButton(onClick = { onBackClick() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.Black
+                        )
+
+                    }
+                }
+            )
         }
     ) { padding ->
         if (details.isEmpty()) {
@@ -62,8 +86,8 @@ fun BuyerDetails(NavigateToBuyerDetails: () -> Unit,viewModel: AppViewModel = vi
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(details) { details->
-                    ItemCard(details,viewModel)
+                items(details) { details ->
+                    ItemCard(details, viewModel)
                 }
             }
         }
@@ -81,7 +105,23 @@ fun ItemCard(details: BuyerDetails, viewModel: AppViewModel) {
             Spacer(modifier = Modifier.height(6.dp))
             Text(details.itemName, fontSize = 14.sp)
             Spacer(modifier = Modifier.height(6.dp))
-            Text("Quantity: ${details.quantity}", fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+
+            Text(
+                "Quantity: ${details.requestedQuantity}",
+
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                Text(
+                    "Rs:${details.total.toString()}",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
 
         }
     }

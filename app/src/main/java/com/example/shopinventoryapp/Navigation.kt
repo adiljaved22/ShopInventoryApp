@@ -19,29 +19,37 @@ fun Navigation() {
             )
         }
         composable("AddItem") {
-            AddItem(onBack = { navController.popBackStack() } ,NavigateToAddItem = { navController.navigate("AddItem") })
+            AddItem(
+                onBackClick = { navController.popBackStack() },
+                onBack = { navController.popBackStack() },
+                NavigateToAddItem = { navController.navigate("AddItem") })
         }
         composable("ViewItems")
         {
             ViewItems(
-               viewModel = viewModel(), NavigateToViewItem = { navController.navigate("ViewItems") }
+                onBackClick = { navController.popBackStack() },
+                viewModel = viewModel(),
+                NavigateToViewItem = { navController.navigate("ViewItems") }
             )
         }
         composable("SellItems")
         {
-            SellItems(onBack = { navController.popBackStack() },
+            BuyItems(
+                onBackClick = { navController.popBackStack() },
+                onBack = { navController.popBackStack() },
                 NavigateToSellItem = { navController.navigate("SellItems") }
             )
         }
         composable("BuyerDetails")
         {
             BuyerDetails(
+                onBackClick = { navController.popBackStack() },
+                viewModel = viewModel(),
                 NavigateToBuyerDetails = { navController.navigate("BuyerDetails") }
             )
         }
     }
 
 
-
-    }
+}
 

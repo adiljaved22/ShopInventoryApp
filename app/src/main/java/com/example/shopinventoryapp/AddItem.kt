@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -38,7 +40,8 @@ import java.util.Calendar
 fun AddItem(
     onBack: () -> Unit,
     NavigateToAddItem: () -> Unit,
-    viewModel: AppViewModel = viewModel()
+    viewModel: AppViewModel = viewModel(),
+    onBackClick:()->Unit
 ) {
     var itemName by remember { mutableStateOf("") }
     var purchaseAmount by remember { mutableStateOf("") }
@@ -62,7 +65,16 @@ fun AddItem(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Add Item") }) }
+        topBar = { TopAppBar(title = { Text("Add Item") },
+
+            actions = {
+                IconButton(onClick = {onBackClick()}) {
+                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.Black)
+
+                }
+            }
+            )
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -140,7 +152,7 @@ fun AddItem(
                                 date = date,
                                 name = itemName,
                                 unitPrice = unitPrice.toDoubleOrNull() ?: 0.0,
-                                quantity = quantity.toInt(),
+                                currentStock = quantity.toInt(),
                                 salesPrice = salesPrice.toDoubleOrNull() ?: 0.0
 
                             )

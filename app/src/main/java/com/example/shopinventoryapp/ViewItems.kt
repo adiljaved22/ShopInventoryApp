@@ -14,12 +14,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewItems(
     NavigateToViewItem: () -> Unit,
-    viewModel: AppViewModel = viewModel()
+    viewModel: AppViewModel = viewModel(),
+    onBackClick: () -> Unit,
 ) {
     val list by viewModel.items.collectAsState(initial = emptyList())
 
@@ -29,7 +33,19 @@ fun ViewItems(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Inventory Items") })
+            TopAppBar(
+                title = { Text("Inventory Items") },
+
+                actions = {
+                    IconButton(onClick = { onBackClick() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.Black
+                        )
+
+                    }
+                })
         }
     ) { padding ->
         if (list.isEmpty()) {
@@ -50,7 +66,7 @@ fun ViewItems(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(list) { item ->
-                    ItemCard(item,viewModel)
+                    ItemCard(item, viewModel)
                 }
             }
         }
@@ -75,7 +91,7 @@ fun ItemCard(item: Items, viewModel: AppViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text("Price: Rs ${item.salesPrice}")
-                Text("Qty: ${item.quantity}")
+                Text("Qty: ${item.currentStock}")
             }
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -117,7 +133,7 @@ fun EditItemDialog(
 ) {
     var name by remember { mutableStateOf(item.name) }
     var price by remember { mutableStateOf(item.unitPrice.toString()) }
-    var quantity by remember { mutableStateOf(item.quantity.toString()) }
+    var quantity by remember { mutableStateOf(item.currentStock.toString()) }
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -157,7 +173,7 @@ fun EditItemDialog(
                         val updatedItem = item.copy(
                             name = name,
                             unitPrice = price.toDoubleOrNull() ?: 0.0,
-                            quantity = quantity.toIntOrNull() ?: 0
+                            currentStock = quantity.toIntOrNull() ?: 0
                         )
                         onSave(updatedItem)
                     }) {
