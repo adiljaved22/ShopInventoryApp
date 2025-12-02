@@ -9,7 +9,21 @@ import androidx.navigation.compose.rememberNavController
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "DashBoard") {
+    NavHost(navController = navController, startDestination = "Signup") {
+        composable("Signup") {
+            SignUp(
+                NavigateToLogin = {
+                    navController.navigate("Login")
+                }
+            )
+        }
+        composable("Login") {
+            login(
+                NavigateToDashBoard = {
+                    navController.navigate("DashBoard")
+                }
+            )
+        }
         composable("DashBoard") {
             DashBoard(
                 NavigateToAddItem = { navController.navigate("AddItem") },
@@ -35,6 +49,8 @@ fun Navigation() {
         composable("SellItems")
         {
             BuyItems(
+
+
                 onBackClick = { navController.popBackStack() },
                 onBack = { navController.popBackStack() },
                 NavigateToSellItem = { navController.navigate("SellItems") }
@@ -52,4 +68,3 @@ fun Navigation() {
 
 
 }
-

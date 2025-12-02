@@ -37,6 +37,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.flow.compose
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,10 +45,11 @@ fun BuyItems(
     NavigateToSellItem: () -> Unit,
     viewModel: AppViewModel = viewModel(),
     onBack: () -> Unit,
-    onBackClick:()->Unit,
+    onBackClick: () -> Unit,
 ) {
     LaunchedEffect(Unit) {
         viewModel.displayItems()
+
     }
 
     var BuyerName by remember { mutableStateOf("") }
@@ -61,20 +63,25 @@ fun BuyItems(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = {
-                Text(
-                    "Buy Items",
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            },
+            TopAppBar(
+                title = {
+                    Text(
+                        "Buy Items",
+                        fontSize = 25.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                },
                 actions = {
-                   IconButton(onClick = {onBackClick()}) {
-                       Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.Black)
+                    IconButton(onClick = { onBackClick() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.Black
+                        )
 
                     }
                 }
-                )
+            )
         }
     ) { paddingValues ->
         Column(
@@ -138,16 +145,15 @@ fun BuyItems(
 
             Button(onClick = {
                 val itemToSell = list.find { it.name == selectedItem }
-                val qty = quantity.toIntOrNull()
+                val qty = quantity.toIntOrNull() ?: 0
+                val sale = itemToSell?.salesPrice ?: 0.0
+                val totalprice = (sale * qty)
 
 
-                val salesprice = itemToSell?.salesPrice ?: 0.0
-                val total = salesprice * (qty ?: 0)
-                println("Total price of item: $total")
 
                 when {
                     itemToSell == null -> errorMsg = "Please select an item"
-                    qty == null || qty <= 0 -> errorMsg = "Enter a valid quantity"
+                    qty <= 0 -> errorMsg = "Enter a valid quantity"
                     qty > itemToSell.currentStock -> errorMsg = "Out of Stock"
                     else -> {
 
@@ -156,7 +162,7 @@ fun BuyItems(
                                 buyerName = BuyerName,
                                 itemName = ItemName,
                                 requestedQuantity = qty,
-                                total = total
+                                totalprice = totalprice
                             ),
                             item = itemToSell,
                         )
@@ -176,7 +182,3 @@ fun BuyItems(
         }
     }
 }
-
-
-
-

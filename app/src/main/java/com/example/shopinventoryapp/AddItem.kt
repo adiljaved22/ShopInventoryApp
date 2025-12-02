@@ -73,7 +73,7 @@ fun AddItem(
 
                 }
             }
-            )
+        )
         }
     ) { paddingValues ->
         Column(
@@ -153,7 +153,9 @@ fun AddItem(
                                 name = itemName,
                                 unitPrice = unitPrice.toDoubleOrNull() ?: 0.0,
                                 currentStock = quantity.toInt(),
-                                salesPrice = salesPrice.toDoubleOrNull() ?: 0.0
+                                salesPrice = salesPrice.toDoubleOrNull() ?: 0.0,
+                                purchasePrice = purchaseAmount.toDoubleOrNull() ?:0.0
+
 
                             )
 

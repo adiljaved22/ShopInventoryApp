@@ -14,10 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.rounded.AddTask
-import androidx.compose.material.icons.rounded.Details
-import androidx.compose.material.icons.rounded.EventAvailable
 import androidx.compose.material.icons.rounded.Sell
 import androidx.compose.material.icons.rounded.ViewList
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,12 +23,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,8 +40,14 @@ fun DashBoard(
     NavigateToAddItem: () -> Unit,
     NavigateToViewItem: () -> Unit,
     NavigateToSellItem: () -> Unit,
-    NavigateToBuyerDetails: () -> Unit
+    NavigateToBuyerDetails: () -> Unit,
+    viewModel: AppViewModel=viewModel()
 ) {
+    val buyers by viewModel.buyerDetails.collectAsState(initial = emptyList())
+    val totalSales = buyers.sumOf { it.totalSales }
+    val totalProfit = buyers.sumOf { it.profit }
+
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -55,7 +61,6 @@ fun DashBoard(
             )
         }
     ) { paddingValues ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -65,6 +70,8 @@ fun DashBoard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            Text("Total Sales: $totalSales", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text("Total Profit: $totalProfit", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
@@ -74,6 +81,8 @@ fun DashBoard(
                 color = Color.Black,
                 lineHeight = 36.sp
             )
+
+
 
             Spacer(modifier = Modifier.height(35.dp))
 
@@ -205,4 +214,5 @@ fun DashBoard(
             }
         }
     }
+
 }

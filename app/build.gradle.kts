@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.firebase.auth.ktx)
     val nav_version = "2.7.4"
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -59,6 +60,9 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:<latest_version>")
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("androidx.navigation:navigation-compose:${nav_version}")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

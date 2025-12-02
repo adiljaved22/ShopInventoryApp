@@ -115,7 +115,7 @@ fun ItemCard(details: BuyerDetails, viewModel: AppViewModel) {
             Spacer(modifier = Modifier.height(6.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 Text(
-                    "Rs:${details.total.toString()}",
+                    "Rs:${details.totalprice.toString()}",
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
                     color = MaterialTheme.colorScheme.error
