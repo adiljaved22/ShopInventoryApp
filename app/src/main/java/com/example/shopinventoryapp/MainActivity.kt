@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.shopinventoryapp.ui.theme.ShopInventoryAppTheme
 import com.google.firebase.Firebase
 import com.google.firebase.initialize
@@ -20,6 +21,7 @@ import com.google.firebase.initialize
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installSplashScreen()
         Firebase.initialize(this)
         enableEdgeToEdge()
         setContent {
@@ -29,7 +31,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 )
                 {
-                    Navigation()
+                    Navigation(sessionManager = SessionManager(this))
                 }
             }
         }

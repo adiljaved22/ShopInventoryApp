@@ -170,7 +170,7 @@ fun BuyItems(
                     }
                 }
             }) {
-                Text("Sell")
+                Text("Buy")
             }
 
             Box(
