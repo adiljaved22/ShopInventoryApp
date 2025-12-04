@@ -1,7 +1,10 @@
 package com.example.shopinventoryapp
 
 
+import android.app.Activity
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,15 +45,26 @@ import com.google.firebase.auth.ktx.auth
 @Composable
 fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit) {
     val context = LocalContext.current
+    val sessionManager = SessionManager(context)
+    LaunchedEffect(Unit) { }
+    if (sessionManager.isLoggedIn()) {
+        Log.e("loginscreen", "${sessionManager.isLoggedIn()}")
+        navcontroller.navigate("DashBoard1") {
+            popUpTo(0) { inclusive = true }
+            launchSingleTop = true
+        }
+
+    }
+
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
-
-
-    val sessionManager = SessionManager(context)
+    /*BackHandler {
+        (context as? Activity)?.finish()
+    }*/
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -129,7 +144,10 @@ fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit) {
                     if (task.isSuccessful) {
                         sessionManager.saveLogin()
                         Toast.makeText(context, "Login Successful", Toast.LENGTH_SHORT).show()
-                        navcontroller.navigate("DashBoard1")
+                        navcontroller.navigate("DashBoard1") {
+                            popUpTo(0)
+                            launchSingleTop = true
+                        }
                     } else {
                         Toast.makeText(context, "Login Failed", Toast.LENGTH_SHORT).show()
                     }
