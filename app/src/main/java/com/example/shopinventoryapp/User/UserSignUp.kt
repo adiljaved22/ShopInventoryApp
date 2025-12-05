@@ -41,7 +41,7 @@ import com.google.firebase.auth.auth
 import kotlin.text.ifEmpty
 
 @Composable
-    fun UserSignUp(navController: NavController, NavigateToLogin: () -> Unit) {
+    fun UserSignUp(navController: NavController, NavigateToUserLogin: () -> Unit) {
     val context = LocalContext.current
 
     var email by remember { mutableStateOf("") }
@@ -124,7 +124,7 @@ import kotlin.text.ifEmpty
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
 
-                            NavigateToLogin()
+                            NavigateToUserLogin()
                             Toast.makeText(context, "Sign Up Successful", Toast.LENGTH_SHORT).show()
 
                         } else {
@@ -147,7 +147,7 @@ import kotlin.text.ifEmpty
                 Text(
                     "Login",
                     color = Color.Blue,
-                    modifier = Modifier.clickable { navController.navigate("LoginUser") })
+                    modifier = Modifier.clickable { navController.navigate("UserLogin") })
             }
         }
     }

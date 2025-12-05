@@ -49,16 +49,16 @@ import com.google.firebase.auth.auth
 fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
-    LaunchedEffect(Unit) { }
-    if (sessionManager.isLoggedIn()) {
-        Log.e("loginscreen", "${sessionManager.isLoggedIn()}")
-        navcontroller.navigate("DashBoard2") {
-            popUpTo(0) { inclusive = true }
-            launchSingleTop = true
+    LaunchedEffect(Unit) {
+        if (sessionManager.isLoggedIn()) {
+            Log.e("loginscreen", "${sessionManager.isLoggedIn()}")
+            navcontroller.navigate("DashBoard2") {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
+
         }
-
     }
-
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -163,7 +163,7 @@ fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
                 Text(
                     "SignUp",
                     color = Color.Blue,
-                    modifier = Modifier.clickable {  })
+                    modifier = Modifier.clickable { navcontroller.navigate("UserSignUp") })
             }
         }
 

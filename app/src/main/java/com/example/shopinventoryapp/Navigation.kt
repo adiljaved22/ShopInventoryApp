@@ -1,102 +1,3 @@
-/*
-package com.example.shopinventoryapp
-
-import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-
-@Composable
-fun Navigation() {
-    val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "AdminAurUser") {
-        */
-/* composable("Signup") {
-             SignUp(
-                 navController = navController,
-                 NavigateToLogin = {
-                     navController.navigate("Login")
-                 }
-             )
-         }*//*
-
-        composable("AdminAurUser")
-        {
-            AdminAurUser(
-                NavigateToLogin = { navController.navigate("Login") },
-                NavigateToDashBoard2 = { navController.navigate("DashBoard2") }, navController
-            )
-        }
-        composable("DashBoard2") {
-            DashBoard2(
-                NavigateToViewItem = { navController.navigate("ViewItems") },
-                NavigateToSellItem = { navController.navigate("SellItems") },
-                navController = navController
-            )
-        }
-        composable("Login") {
-            Login(
-                navcontroller = navController,
-                NavigateToDashBoard1 = {
-                    navController.navigate("DashBoard1") {
-                        popUpTo("Login") {
-                            inclusive = true
-                        }
-                        launchSingleTop = true
-                    }
-                }
-            )
-        }
-        composable("DashBoard1") {
-            DashBoard1(
-                Logout = {
-                    navController.navigate("AdminAurUser") {
-                        popUpTo("DashBoard1") { inclusive = true }
-                        launchSingleTop = true
-
-                    }
-                },
-                NavigateToAddItem = { navController.navigate("AddItem") },
-                NavigateToBuyerDetails = { navController.navigate("BuyerDetails") }
-            )
-        }
-        composable("AddItem") {
-            AddItem(
-                onBackClick = { navController.popBackStack() },
-                onBack = { navController.popBackStack() },
-                NavigateToAddItem = { navController.navigate("AddItem") })
-        }
-        composable("ViewItems")
-        {
-            ViewItems(
-                onBackClick = { navController.popBackStack() },
-                viewModel = viewModel(),
-                NavigateToViewItem = { navController.navigate("ViewItems") }
-            )
-        }
-        composable("SellItems")
-        {
-            BuyItems(
-
-
-                onBackClick = { navController.popBackStack() },
-                onBack = { navController.popBackStack() },
-                NavigateToSellItem = { navController.navigate("SellItems") }
-            )
-        }
-        composable("BuyerDetails")
-        {
-            BuyerDetails(
-                onBackClick = { navController.popBackStack() },
-                viewModel = viewModel(),
-                NavigateToBuyerDetails = { navController.navigate("BuyerDetails") }
-            )
-        }
-    }
-
-
-}*/
 package com.example.shopinventoryapp
 
 import androidx.compose.runtime.Composable
@@ -106,18 +7,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.shopinventoryapp.User.BuyerDetails
 import com.example.shopinventoryapp.User.DashBoard2
+import com.example.shopinventoryapp.User.Payment
 import com.example.shopinventoryapp.User.UserLogin
+import com.example.shopinventoryapp.User.UserSignUp
 import com.example.shopinventoryapp.User.ViewItemsForBuyers
 
 @Composable
 fun Navigation(sessionManager: SessionManager) {
 
     val navController = rememberNavController()
-    /*   val startDestination = if (sessionManager.isLoggedIn()) {
-           "DashBoard1"
-       } else {
-           "AdminAurUser"
-       }*/
+
 
     NavHost(navController = navController, startDestination = "AdminAurUser") {
 
@@ -157,22 +56,21 @@ fun Navigation(sessionManager: SessionManager) {
             UserLogin(
                 navcontroller = navController,
                 NavigateToDashBoard2 = {
+                    sessionManager.saveLogin()
                     navController.navigate("DashBoard2") {
                         popUpTo(0) {
                             inclusive = true
                         }
-                        launchSingleTop =true
+                        launchSingleTop = true
                     }
                 })
         }
-      /*  composable("UserSignUp"){
-            UserSignUp(navController = navController, NavigateToLogin = {
-                navController.navigate("UserLogin"){
-                    popUpTo(0)
-                    launchSingleTop = true
-                }
-            })
-        }*/
+        composable("UserSignUp") {
+            UserSignUp(
+                navController = navController,
+                NavigateToUserLogin = { navController.navigate("UserLogin") })
+
+        }
 
         composable("DashBoard1") {
             DashBoard1(
@@ -203,7 +101,15 @@ fun Navigation(sessionManager: SessionManager) {
 
 
         composable("DashBoard2") {
+
             DashBoard2(
+                Logout2 = {
+                    sessionManager.logout()
+                    navController.navigate("AdminAurUser") {
+                        popUpTo(0) { inclusive = true }
+
+                    }
+                },
                 NavigateToViewItem = {
                     navController.navigate("ViewItemsForBuyers") {
                         launchSingleTop = true
@@ -211,6 +117,12 @@ fun Navigation(sessionManager: SessionManager) {
                 },
                 NavigateToSellItem = {
                     navController.navigate("SellItems") {
+                        launchSingleTop = true
+                    }
+
+                },
+                NavigateToPayment = {
+                    navController.navigate("Payment") {
                         launchSingleTop = true
                     }
                 },
@@ -236,6 +148,12 @@ fun Navigation(sessionManager: SessionManager) {
                         launchSingleTop = true
                     }
                 }
+            )
+        }
+        composable("Payment") {
+            Payment(
+                onBackClick = { navController.popBackStack() },
+                NavigateToPayment = { navController.navigate("Payment") }, viewModel = viewModel()
             )
         }
         composable("ViewItemsForBuyers") {

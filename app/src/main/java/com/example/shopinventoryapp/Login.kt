@@ -46,14 +46,15 @@ import com.google.firebase.auth.ktx.auth
 fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
-    LaunchedEffect(Unit) { }
-    if (sessionManager.isLoggedIn()) {
-        Log.e("loginscreen", "${sessionManager.isLoggedIn()}")
-        navcontroller.navigate("DashBoard1") {
-            popUpTo(0) { inclusive = true }
-            launchSingleTop = true
-        }
+    LaunchedEffect(Unit) {
+        if (sessionManager.isLoggedIn()) {
+            Log.e("loginscreen", "${sessionManager.isLoggedIn()}")
+            navcontroller.navigate("DashBoard1") {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
 
+        }
     }
 
 
