@@ -87,7 +87,7 @@ fun AdminAurUser(NavigateToLogin: () -> Unit,NavigateToDashBoard2:()->Unit,navco
                         Color(0xFF4682B4),
                         shape = RoundedCornerShape(25.dp)
                     )
-                    .clickable { navcontroller.navigate("DashBoard2") }
+                    .clickable { navcontroller.navigate("UserLogin") }
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center

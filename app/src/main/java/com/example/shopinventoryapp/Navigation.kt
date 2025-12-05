@@ -104,16 +104,20 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.shopinventoryapp.User.BuyerDetails
+import com.example.shopinventoryapp.User.DashBoard2
+import com.example.shopinventoryapp.User.UserLogin
+import com.example.shopinventoryapp.User.ViewItemsForBuyers
 
 @Composable
 fun Navigation(sessionManager: SessionManager) {
 
     val navController = rememberNavController()
- /*   val startDestination = if (sessionManager.isLoggedIn()) {
-        "DashBoard1"
-    } else {
-        "AdminAurUser"
-    }*/
+    /*   val startDestination = if (sessionManager.isLoggedIn()) {
+           "DashBoard1"
+       } else {
+           "AdminAurUser"
+       }*/
 
     NavHost(navController = navController, startDestination = "AdminAurUser") {
 
@@ -149,6 +153,26 @@ fun Navigation(sessionManager: SessionManager) {
                 }
             )
         }
+        composable("UserLogin") {
+            UserLogin(
+                navcontroller = navController,
+                NavigateToDashBoard2 = {
+                    navController.navigate("DashBoard2") {
+                        popUpTo(0) {
+                            inclusive = true
+                        }
+                        launchSingleTop =true
+                    }
+                })
+        }
+      /*  composable("UserSignUp"){
+            UserSignUp(navController = navController, NavigateToLogin = {
+                navController.navigate("UserLogin"){
+                    popUpTo(0)
+                    launchSingleTop = true
+                }
+            })
+        }*/
 
         composable("DashBoard1") {
             DashBoard1(
@@ -214,15 +238,15 @@ fun Navigation(sessionManager: SessionManager) {
                 }
             )
         }
-        composable("ViewItemsForBuyers"){
+        composable("ViewItemsForBuyers") {
             ViewItemsForBuyers(
                 onBackClick = { navController.popBackStack() },
                 viewModel = viewModel(),
-    NavigateToBuyerViewItem ={
-        navController.navigate("ViewItemsForBuyers"){
-            launchSingleTop=true
-        }
-    }
+                NavigateToBuyerViewItem = {
+                    navController.navigate("ViewItemsForBuyers") {
+                        launchSingleTop = true
+                    }
+                }
             )
         }
 

@@ -1,4 +1,4 @@
-package com.example.shopinventoryapp
+package com.example.shopinventoryapp.User
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,9 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,25 +33,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.shopinventoryapp.AppViewModel
+import com.example.shopinventoryapp.Items
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BuyerDetails(
-    NavigateToBuyerDetails: () -> Unit,
+fun ViewItemsForBuyers(
+
+    NavigateToBuyerViewItem: () -> Unit,
     viewModel: AppViewModel = viewModel(),
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) {
+    val list by viewModel.items.collectAsState(initial = emptyList())
 
-
-    val details by viewModel.buyerDetails.collectAsState(initial = emptyList())
     LaunchedEffect(Unit) {
-        viewModel.displayBuyerDetails()
+        viewModel.displayItems()
     }
-    Text("Buyer Details")
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Buyer Details") },
+                title = { Text("Inventory Items") },
 
                 actions = {
                     IconButton(onClick = { onBackClick() }) {
@@ -65,11 +64,10 @@ fun BuyerDetails(
                         )
 
                     }
-                }
-            )
+                })
         }
     ) { padding ->
-        if (details.isEmpty()) {
+        if (list.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -86,8 +84,8 @@ fun BuyerDetails(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(details) { details ->
-                    ItemCard(details, viewModel)
+                items(list) { item ->
+                    ItemCard1(item, viewModel)
                 }
             }
         }
@@ -95,34 +93,33 @@ fun BuyerDetails(
 }
 
 @Composable
-fun ItemCard(details: BuyerDetails, viewModel: AppViewModel) {
+fun ItemCard1(item: Items, viewModel: AppViewModel) {
+
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(6.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(details.buyerName, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(details.itemName, fontSize = 14.sp)
+
+            Text(item.name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
             Spacer(modifier = Modifier.height(6.dp))
 
-            Text(
-                "Quantity: ${details.requestedQuantity}",
-
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                Text(
-                    "Rs:${details.totalprice.toString()}",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    color = MaterialTheme.colorScheme.error
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Price: Rs ${item.salesPrice}")
+                Text("Qty: ${item.currentStock}")
             }
+
+            Spacer(modifier = Modifier.height(6.dp))
+            Text("Date: ${item.date}", fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
 
 
         }
     }
 }
+
+
+

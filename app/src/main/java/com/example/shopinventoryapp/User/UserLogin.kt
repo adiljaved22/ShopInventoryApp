@@ -1,7 +1,10 @@
-/*
-package com.example.shopinventoryapp
+package com.example.shopinventoryapp.User
 
+import com.example.shopinventoryapp.SessionManager
+import android.app.Activity
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,11 +44,21 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import kotlin.text.ifEmpty
 
 @Composable
-fun SignUp(navController: NavController, NavigateToLogin: () -> Unit) {
+fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
     val context = LocalContext.current
+    val sessionManager = SessionManager(context)
+    LaunchedEffect(Unit) { }
+    if (sessionManager.isLoggedIn()) {
+        Log.e("loginscreen", "${sessionManager.isLoggedIn()}")
+        navcontroller.navigate("DashBoard2") {
+            popUpTo(0) { inclusive = true }
+            launchSingleTop = true
+        }
+
+    }
+
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -59,7 +73,8 @@ fun SignUp(navController: NavController, NavigateToLogin: () -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("SignUp", fontWeight = FontWeight.Bold)
+        Text("Login", fontWeight = FontWeight.Bold)
+
 
         OutlinedTextField(
             modifier = Modifier
@@ -67,10 +82,13 @@ fun SignUp(navController: NavController, NavigateToLogin: () -> Unit) {
                 .padding(top = 8.dp),
             value = email,
             onValueChange = { email = it },
-            label = { Text(
-                text = emailError.ifEmpty { "Email" },
-                color = if (emailError.isNotEmpty()) Red else Unspecified
-            ) },
+            label = {
+                Text(
+                    text = emailError.ifEmpty { "Email" },
+                    color = if (emailError.isNotEmpty()) Red else Unspecified
+                )
+            },
+
             leadingIcon = { Icon(imageVector = Icons.Filled.Email, contentDescription = "") }
         )
 
@@ -83,9 +101,9 @@ fun SignUp(navController: NavController, NavigateToLogin: () -> Unit) {
                     color = if (passwordError.isNotEmpty()) Red else Unspecified
                 )
 
+
             },
             leadingIcon = { Icon(imageVector = Icons.Filled.Lock, contentDescription = "") },
-
             visualTransformation =
                 if (passwordVisible) {
                     VisualTransformation.None
@@ -106,56 +124,53 @@ fun SignUp(navController: NavController, NavigateToLogin: () -> Unit) {
             },
             modifier = Modifier.fillMaxWidth()
         )
+
         Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = {
-                emailError = when {
-                    email.isBlank() -> "Email is required"
-                    !isValidEmail(email) -> "Invalid Email"
-                    else -> ""
-                }
-                passwordError = when {
-                    password.isBlank() -> "Password is required"
-                    password.length < 6 -> "Password must be at least 6 characters"
-                    else -> ""
-                }
-                if (emailError.isNotEmpty() || passwordError.isNotEmpty()) {
-                    return@Button
-                }
-                Firebase.auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-
-                            NavigateToLogin()
-                            Toast.makeText(context, "Sign Up Successful", Toast.LENGTH_SHORT).show()
-
-                        } else {
-                            Toast.makeText(context, "Sign Up Failed", Toast.LENGTH_SHORT).show()
+        Button(onClick = {
+            emailError = when {
+                email.isBlank() -> "Email is required"
+                !isValidEmail(email) -> "Invalid Email"
+                else -> ""
+            }
+            passwordError = when {
+                password.isBlank() -> "Password is required"
+                password.length < 6 -> "Password must be at least 6 characters"
+                else -> ""
+            }
+            if (emailError.isNotEmpty() || passwordError.isNotEmpty()) {
+                return@Button
+            }
+            Firebase.auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        sessionManager.saveLogin()
+                        Toast.makeText(context, "Login Successful", Toast.LENGTH_SHORT).show()
+                        navcontroller.navigate("DashBoard2") {
+                            popUpTo(0)
+                            launchSingleTop = true
                         }
+                    } else {
+                        Toast.makeText(context, "Login Failed", Toast.LENGTH_SHORT).show()
                     }
-
-            },
-
-
-            )
-        {
-
-            Text("Sign Up")
+                }
+        }) {
+            Text("Login")
         }
         Spacer(modifier = Modifier.height(8.dp))
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Row {
-                Text("Already have an account?")
+                Text("Not a member?")
                 Text(
-                    "Login",
+                    "SignUp",
                     color = Color.Blue,
-                    modifier = Modifier.clickable { navController.navigate("login") })
+                    modifier = Modifier.clickable {  })
             }
         }
+
+
     }
-
 }
-*/
 
-
-
+fun isValidEmail(email: String): Boolean {
+    return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+}
