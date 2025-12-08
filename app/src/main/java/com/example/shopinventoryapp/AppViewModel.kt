@@ -1,4 +1,7 @@
 package com.example.shopinventoryapp
+
+import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
@@ -14,6 +17,7 @@ class AppViewModel : ViewModel() {
 
     private val _message = MutableStateFlow("")
     val message: StateFlow<String> = _message
+
     init {
         displayItems()
         displayBuyerDetails()
@@ -99,6 +103,47 @@ class AppViewModel : ViewModel() {
             _message.value = "Item Sold Successfully"
         }
     }
+
+    fun UserSignUp(email: String, password: String, role: String) {
+        val db = FirebaseFirestore.getInstance()
+        val usersCollection = db.collection("Users")
+        val users = SignUp(email, password, role)
+        usersCollection.add(users).addOnSuccessListener {
+            println("User Added")
+
+        }.addOnFailureListener {
+            println("User Failed")
+        }
+
+
+       /* fun LoginAdmin(email: String, password: String){
+            val db = FirebaseFirestore.getInstance()
+            val usersCollection = db.collection("Admin")
+            val users = Login(email, password)
+            if ()
+        }
+    }*/
+    /*   fun logic(uid: String, email: String,context: Context) {
+           val db = FirebaseFirestore.getInstance()
+           val usersCollection = db.collection("Users")
+           usersCollection.whereEqualTo("role", "Admin").get()
+               .addOnSuccessListener { snapshots ->
+                   val role = if (snapshots.isEmpty) {
+                       "Admin"
+                   } else {
+                       "User"
+                   }
+                   val userMap = mapOf("email" to email, "role" to role)
+                   usersCollection.document(uid).set(userMap)
+                       .addOnSuccessListener {
+                           Toast.makeText(context, "Signup Successful as $role", Toast.LENGTH_SHORT)
+                               .show()
+
+                       }.addOnFailureListener {
+                           Toast.makeText(context, "Signup Failed: ${it.message}", Toast.LENGTH_SHORT).show()
+                       }
+               }
+       }*/
 
 
 }

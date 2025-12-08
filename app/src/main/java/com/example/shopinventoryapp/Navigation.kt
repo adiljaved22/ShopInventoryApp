@@ -68,6 +68,7 @@ fun Navigation(sessionManager: SessionManager) {
         composable("UserSignUp") {
             UserSignUp(
                 navController = navController,
+                viewModel = viewModel(),
                 NavigateToUserLogin = { navController.navigate("UserLogin") })
 
         }

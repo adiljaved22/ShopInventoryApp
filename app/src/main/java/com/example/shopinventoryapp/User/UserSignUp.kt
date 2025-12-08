@@ -35,13 +35,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.shopinventoryapp.AppViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import kotlin.text.ifEmpty
 
 @Composable
-    fun UserSignUp(navController: NavController, NavigateToUserLogin: () -> Unit) {
+    fun UserSignUp(viewModel: AppViewModel, navController: NavController, NavigateToUserLogin: () -> Unit) {
     val context = LocalContext.current
 
     var email by remember { mutableStateOf("") }
@@ -123,7 +125,7 @@ import kotlin.text.ifEmpty
                 Firebase.auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-
+                            viewModel.UserSignUp(email, password, "User")
                             NavigateToUserLogin()
                             Toast.makeText(context, "Sign Up Successful", Toast.LENGTH_SHORT).show()
 

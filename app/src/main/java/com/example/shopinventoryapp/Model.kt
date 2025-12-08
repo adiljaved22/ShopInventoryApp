@@ -24,3 +24,14 @@ data class BuyerDetails(
     val profit : Double =0.0,
 
     )
+
+data class SignUp(
+    val email: String = "",
+    val password: String = "",
+    val role: String = "",
+)
+
+data class Login(
+    val email: String = "",
+    val password: String = "",
+)
