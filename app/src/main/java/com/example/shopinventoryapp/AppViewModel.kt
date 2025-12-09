@@ -1,9 +1,8 @@
 package com.example.shopinventoryapp
 
-import android.content.Context
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,10 +16,29 @@ class AppViewModel : ViewModel() {
 
     private val _message = MutableStateFlow("")
     val message: StateFlow<String> = _message
+    private val _users = MutableStateFlow<Users?>(null)
+    val user: StateFlow<Users?> = _users
 
     init {
         displayItems()
         displayBuyerDetails()
+    }
+
+    fun getUsers(uid: String) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users").document(uid)
+            .get().addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val displayName = document.getString("displayName") ?: ""
+                    val email = document.getString("email") ?: ""
+                    _users.value = Users(
+                        displayName = displayName,
+                        email = email
+                    )
+                }
+            }.addOnFailureListener {
+                println("User Failed")
+            }
     }
 
     fun addItems(item: Items) {
@@ -104,26 +122,31 @@ class AppViewModel : ViewModel() {
         }
     }
 
-    fun UserSignUp(email: String, password: String, role: String) {
+    fun AdminLogin(uid: String, email: String, role: String) {
+
         val db = FirebaseFirestore.getInstance()
-        val usersCollection = db.collection("Users")
-        val users = SignUp(email, password, role)
-        usersCollection.add(users).addOnSuccessListener {
-            println("User Added")
-
-        }.addOnFailureListener {
-            println("User Failed")
-        }
+        val admin = AdLogin(uid = uid, email = email, role = role)
+        db.collection("Admin").document(uid).set(admin)
+            .addOnSuccessListener { println("Admin Added") }
+            .addOnFailureListener { e -> println("Admin Failed,$e") }
 
 
-       /* fun LoginAdmin(email: String, password: String){
-            val db = FirebaseFirestore.getInstance()
-            val usersCollection = db.collection("Admin")
-            val users = Login(email, password)
-            if ()
-        }
-    }*/
-    /*   fun logic(uid: String, email: String,context: Context) {
+    }
+
+    fun UserSignUp(displayName: String, email: String, role: String, uid: String?) {
+        val db = FirebaseFirestore.getInstance()
+        val usersCollection = db.collection("users")
+        val users = SignUp(displayName, email, role, uid, createdAt = Timestamp.now())
+        usersCollection.document(uid ?: return)
+            .set(users).addOnSuccessListener {
+                println("User Added")
+
+            }.addOnFailureListener {
+                println("User Failed")
+            }
+
+
+        /*   fun logic(uid: String, email: String,context: Context) {
            val db = FirebaseFirestore.getInstance()
            val usersCollection = db.collection("Users")
            usersCollection.whereEqualTo("role", "Admin").get()
@@ -146,4 +169,5 @@ class AppViewModel : ViewModel() {
        }*/
 
 
+    }
 }

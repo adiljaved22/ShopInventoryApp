@@ -43,7 +43,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
@@ -142,14 +144,35 @@ fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
             }
             Firebase.auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
+                    if (task.isSuccessful){
+                        val uid = FirebaseAuth.getInstance().currentUser?.uid?:return@addOnCompleteListener
+                        val db = FirebaseFirestore.getInstance()
+                        db.collection("users").document(uid).get()
+                            .addOnSuccessListener { doc ->
+                                if (doc.exists()) {
+                                    Toast.makeText(context, "User login", Toast.LENGTH_SHORT)
+                                        .show()
+
+                                } else {
+                                    Toast.makeText(context, "Admin login", Toast.LENGTH_SHORT).show()
+
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(
+                                    context,
+                                    "Role check failed: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+                            }
                         sessionManager.saveLogin()
                         Toast.makeText(context, "Login Successful", Toast.LENGTH_SHORT).show()
                         navcontroller.navigate("DashBoard2") {
                             popUpTo(0)
                             launchSingleTop = true
                         }
-                    } else {
+                    }else {
                         Toast.makeText(context, "Login Failed", Toast.LENGTH_SHORT).show()
                     }
                 }

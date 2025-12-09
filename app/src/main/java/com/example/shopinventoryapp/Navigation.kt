@@ -41,6 +41,7 @@ fun Navigation(sessionManager: SessionManager) {
         composable("Login") {
             Login(
                 navcontroller = navController,
+                viewModel = viewModel(),
                 NavigateToDashBoard1 = {
 
                     sessionManager.saveLogin()
@@ -169,7 +170,7 @@ fun Navigation(sessionManager: SessionManager) {
             )
         }
 
-        composable("SellItems") {
+      /*  composable("SellItems") {
             BuyItems(
                 onBackClick = { navController.popBackStack() },
                 onBack = { navController.popBackStack() },
@@ -179,7 +180,7 @@ fun Navigation(sessionManager: SessionManager) {
                     }
                 }
             )
-        }
+        }*/
 
         composable("BuyerDetails") {
             BuyerDetails(

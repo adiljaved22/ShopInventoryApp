@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -35,23 +36,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.shopinventoryapp.AppViewModel
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import kotlin.text.ifEmpty
 
 @Composable
-    fun UserSignUp(viewModel: AppViewModel, navController: NavController, NavigateToUserLogin: () -> Unit) {
+fun UserSignUp(viewModel: AppViewModel, navController: NavController, NavigateToUserLogin: () -> Unit) {
     val context = LocalContext.current
-
+    var displayName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
-
+    var displayNameError by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -72,6 +73,18 @@ import kotlin.text.ifEmpty
                 color = if (emailError.isNotEmpty()) Red else Unspecified
             ) },
             leadingIcon = { Icon(imageVector = Icons.Filled.Email, contentDescription = "") }
+        )
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            value = displayName,
+            onValueChange = { displayName = it },
+            label = { Text(
+                text =displayNameError.ifEmpty { "Username" },
+                color = if (displayNameError.isNotEmpty()) Red else Unspecified
+            ) },
+            leadingIcon = { Icon(imageVector = Icons.Filled.Person, contentDescription = "") }
         )
 
         OutlinedTextField(
@@ -125,7 +138,10 @@ import kotlin.text.ifEmpty
                 Firebase.auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            viewModel.UserSignUp(email, password, "User")
+                            val currentUser = FirebaseAuth.getInstance().currentUser
+                            val uid = currentUser?.uid
+                          println("DisplayName , ${displayName},Email,${email},uid,${uid}")
+                            viewModel.UserSignUp(displayName,email,"user",uid)
                             NavigateToUserLogin()
                             Toast.makeText(context, "Sign Up Successful", Toast.LENGTH_SHORT).show()
 
@@ -155,7 +171,3 @@ import kotlin.text.ifEmpty
     }
 
 }
-
-
-
-

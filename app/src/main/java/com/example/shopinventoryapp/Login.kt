@@ -37,13 +37,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit) {
+fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit, viewModel: AppViewModel) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
     LaunchedEffect(Unit) {
@@ -63,9 +66,7 @@ fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit) {
     var passwordVisible by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
-    /*BackHandler {
-        (context as? Activity)?.finish()
-    }*/
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -143,13 +144,18 @@ fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit) {
             Firebase.auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        sessionManager.saveLogin()
-                        Toast.makeText(context, "Login Successful", Toast.LENGTH_SHORT).show()
+
+                        val uid = FirebaseAuth.getInstance().currentUser?.uid
+                            ?: return@addOnCompleteListener
+                        viewModel.AdminLogin(uid, email,"Admin")
                         navcontroller.navigate("DashBoard1") {
                             popUpTo(0)
                             launchSingleTop = true
                         }
+                        sessionManager.saveLogin()
+                        Toast.makeText(context, "Login Successful", Toast.LENGTH_SHORT).show()
                     } else {
+                        Log.e("LOGIN", "Login Failed: ${task.exception?.message}")
                         Toast.makeText(context, "Login Failed", Toast.LENGTH_SHORT).show()
                     }
                 }

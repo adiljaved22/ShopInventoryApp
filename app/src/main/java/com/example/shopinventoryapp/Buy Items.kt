@@ -1,3 +1,4 @@
+/*
 package com.example.shopinventoryapp
 
 import androidx.compose.foundation.layout.Arrangement
@@ -181,4 +182,4 @@ fun BuyItems(
             }
         }
     }
-}
+}*/
