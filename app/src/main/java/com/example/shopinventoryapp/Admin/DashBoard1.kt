@@ -1,4 +1,4 @@
-package com.example.shopinventoryapp
+package com.example.shopinventoryapp.Admin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,18 +14,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.rounded.AddTask
-import androidx.compose.material.icons.rounded.Sell
+import androidx.compose.material.icons.rounded.VerifiedUser
 import androidx.compose.material.icons.rounded.ViewList
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -33,10 +32,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.shopinventoryapp.AppViewModel
+import com.example.shopinventoryapp.R
+import com.example.shopinventoryapp.SessionManager
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,18 +48,23 @@ fun DashBoard1(
     NavigateToAddItem: () -> Unit,
     NavigateToBuyerDetails: () -> Unit,
     NavigateToViewItem:()-> Unit,
+    NavigateToUsers:()->Unit,
     Logout:()->Unit,
     viewModel: AppViewModel = viewModel()
 ) {
     val buyers by viewModel.buyerDetails.collectAsState(initial = emptyList())
-    val totalSales = buyers.sumOf { it.totalSales }
-    val totalProfit = buyers.sumOf { it.profit }
+    val totalSales = buyers.sumOf { it.SingleItemSales }
+    val totalProfit = buyers.sumOf { it.SingleItemprofit }
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
 
     Scaffold(
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    titleContentColor = Color.White,
+                    containerColor = colorResource(id = R.color.teal_700),
+                ),
                 title = {
                     Text(
                         "Dashboard",
@@ -151,53 +159,53 @@ fun DashBoard1(
                             Color(0xFF008080),
                             shape = RoundedCornerShape(25.dp)
                         )
-                        .clickable { NavigateToBuyerDetails() }
+                        .clickable { NavigateToUsers()}
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.AddTask,
-                        contentDescription = "View Details",
+                        imageVector = Icons.Rounded.VerifiedUser,
+                        contentDescription = "View Users",
                         tint = Color.White,
                         modifier = Modifier.size(34.dp)
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
-                        text = "Buyer Details",
+                        text = "All Users",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 17.sp
                     )
                 }
             }
-                Spacer(modifier = Modifier.height(25.dp))
-                Column(
-                    modifier = Modifier
-                        .size(130.dp)
-                        .background(
-                            Color.Black,
-                            shape = RoundedCornerShape(25.dp)
-                        )
-                        .clickable { NavigateToViewItem() }
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.ViewList,
-                        contentDescription = "View Items",
-                        tint = Color.White,
-                        modifier = Modifier.size(34.dp)
+            Spacer(modifier = Modifier.height(25.dp))
+            Column(
+                modifier = Modifier
+                    .size(130.dp)
+                    .background(
+                        Color.Black,
+                        shape = RoundedCornerShape(25.dp)
                     )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = "View Items",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 17.sp
-                    )
-                }
+                    .clickable { NavigateToViewItem() }
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.ViewList,
+                    contentDescription = "View Items",
+                    tint = Color.White,
+                    modifier = Modifier.size(34.dp)
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "View Items",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 17.sp
+                )
+            }
 
 
         }

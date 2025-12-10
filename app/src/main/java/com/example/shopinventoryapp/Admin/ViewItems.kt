@@ -1,4 +1,4 @@
-package com.example.shopinventoryapp
+package com.example.shopinventoryapp.Admin
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +17,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import com.example.shopinventoryapp.AppViewModel
+import com.example.shopinventoryapp.Items
+import com.example.shopinventoryapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +38,10 @@ fun ViewItems(
     Scaffold(
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    titleContentColor = Color.White,
+                    containerColor = colorResource(id = R.color.teal_700),
+                ),
                 title = { Text("Inventory Items") },
 
                 actions = {
@@ -66,7 +74,7 @@ fun ViewItems(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(list) { item ->
-                    ItemCard(item, viewModel)
+                    ItemCard(   item, viewModel)
                 }
             }
         }

@@ -1,4 +1,4 @@
-package com.example.shopinventoryapp
+package com.example.shopinventoryapp.Admin
 
 import android.app.DatePickerDialog
 import android.widget.DatePicker
@@ -19,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,9 +30,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.shopinventoryapp.AppViewModel
+import com.example.shopinventoryapp.Items
+import com.example.shopinventoryapp.R
 import java.util.Calendar
 
 
@@ -41,7 +46,7 @@ fun AddItem(
     onBack: () -> Unit,
     NavigateToAddItem: () -> Unit,
     viewModel: AppViewModel = viewModel(),
-    onBackClick:()->Unit
+    onBackClick: () -> Unit
 ) {
     var itemName by remember { mutableStateOf("") }
     var purchaseAmount by remember { mutableStateOf("") }
@@ -65,15 +70,25 @@ fun AddItem(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Add Item") },
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    titleContentColor = Color.White,
+                    containerColor = colorResource(id = R.color.teal_700),
+                ),
+                title = { Text("Add Item") },
 
-            actions = {
-                IconButton(onClick = {onBackClick()}) {
-                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.Black)
+                actions = {
+                    IconButton(onClick = { onBackClick() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.Black
+                        )
 
+                    }
                 }
-            }
-        )
+            )
         }
     ) { paddingValues ->
         Column(
@@ -154,7 +169,7 @@ fun AddItem(
                                 unitPrice = unitPrice.toDoubleOrNull() ?: 0.0,
                                 currentStock = quantity.toInt(),
                                 salesPrice = salesPrice.toDoubleOrNull() ?: 0.0,
-                                purchasePrice = purchaseAmount.toDoubleOrNull() ?:0.0
+                                purchasePrice = purchaseAmount.toDoubleOrNull() ?: 0.0
 
 
                             )

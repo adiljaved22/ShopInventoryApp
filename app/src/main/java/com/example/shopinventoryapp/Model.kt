@@ -18,14 +18,16 @@ data class Items(
 
 data class BuyerDetails(
     val firestoreId: String = "",
-    val buyerName: String = "",
+    val buyerUid: String = "",
     val itemName: String = "",
     val requestedQuantity: Int = 0,
     val totalprice: Double = 0.0,
-    val totalSales: Double = 0.0,
-    val profit: Double = 0.0,
+    val SingleItemSales: Double = 0.0,
+    val SingleItemprofit: Double = 0.0,
+    val status: Boolean?=false,
+    val createdAt: Timestamp = Timestamp.now()
 
-    )
+)
 
 data class SignUp(
     val displayName: String = "",
@@ -34,6 +36,7 @@ data class SignUp(
     val uid: String? = "",
     val createdAt: Timestamp = Timestamp.now()
 )
+
 data class Users(
     val displayName: String = "",
     val email: String = "",

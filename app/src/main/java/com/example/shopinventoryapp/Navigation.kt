@@ -5,6 +5,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.shopinventoryapp.Admin.AddItem
+import com.example.shopinventoryapp.Admin.DashBoard1
+import com.example.shopinventoryapp.Admin.Login
+import com.example.shopinventoryapp.Admin.UsersList
+import com.example.shopinventoryapp.Admin.ViewItems
 import com.example.shopinventoryapp.User.BuyerDetails
 import com.example.shopinventoryapp.User.DashBoard2
 import com.example.shopinventoryapp.User.Payment
@@ -97,10 +102,22 @@ fun Navigation(sessionManager: SessionManager) {
                     navController.navigate("ViewItems") {
                         launchSingleTop = true
                     }
+                },
+                NavigateToUsers = {
+                    navController.navigate("UsersList") {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
-
+        composable("UsersList") {
+            UsersList(viewModel = viewModel(), NavigateToUsers = {
+                navController.navigate("UsersList") {
+                    launchSingleTop = true
+                }
+            }, onBackClick = { navController.popBackStack() }
+            )
+        }
 
         composable("DashBoard2") {
 
@@ -169,18 +186,6 @@ fun Navigation(sessionManager: SessionManager) {
                 }
             )
         }
-
-      /*  composable("SellItems") {
-            BuyItems(
-                onBackClick = { navController.popBackStack() },
-                onBack = { navController.popBackStack() },
-                NavigateToSellItem = {
-                    navController.navigate("SellItems") {
-                        launchSingleTop = true
-                    }
-                }
-            )
-        }*/
 
         composable("BuyerDetails") {
             BuyerDetails(

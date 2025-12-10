@@ -3,6 +3,7 @@ package com.example.shopinventoryapp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,8 +12,9 @@ import kotlinx.coroutines.launch
 class AppViewModel : ViewModel() {
     private val _items = MutableStateFlow<List<Items>>(emptyList())
     val items: StateFlow<List<Items>> = _items
-    private val _buyerDetails = MutableStateFlow<List<BuyerDetails>>(emptyList())
-    val buyerDetails: StateFlow<List<BuyerDetails>> = _buyerDetails
+
+     private val _buyerDetails = MutableStateFlow<List<BuyerDetails>>(emptyList())
+        val buyerDetails: StateFlow<List<BuyerDetails>> = _buyerDetails
 
     private val _message = MutableStateFlow("")
     val message: StateFlow<String> = _message
@@ -52,14 +54,6 @@ class AppViewModel : ViewModel() {
 
     }
 
-    /*fun addBuyerDetails(details: BuyerDetails) {
-        val db = FirebaseFirestore.getInstance()
-        val id = db.collection("buyerDetails").document()
-        val buyerId = details.copy(firestoreId = id.id)
-        id.set(buyerId)
-            .addOnSuccessListener { println("Buyer Details Added") }
-            .addOnFailureListener { e -> println("Buyer Details Failed,$e") }
-    }*/
 
     fun displayItems() {
         val db = FirebaseFirestore.getInstance()
@@ -70,13 +64,23 @@ class AppViewModel : ViewModel() {
             }
         }
     }
-
-    fun displayBuyerDetails() {
+/*    fun displayUsers() {
         val db = FirebaseFirestore.getInstance()
-        db.collection("buyerDetails").addSnapshotListener { snapshot, e ->
+        db.collection("users").addSnapshotListener { snapshot, e ->
             if (snapshot != null) {
-                val List = snapshot.toObjects(BuyerDetails::class.java)
-                _buyerDetails.value = List
+                val usersList = snapshot.toObjects(Users::class.java)
+                _users.value = usersList
+            }
+        }
+    }*/
+    fun displayBuyerDetails(uid: String? = null) {
+        val db = FirebaseFirestore.getInstance()
+        val base = db.collection("buyerDetails")
+        val query = if (!uid.isNullOrBlank()) base.whereEqualTo("buyerUid", uid) else base
+        query.addSnapshotListener { snapshot, _ ->
+            if (snapshot != null) {
+                val list = snapshot.toObjects(BuyerDetails::class.java)
+               _buyerDetails.value = list
             }
         }
     }
@@ -99,6 +103,7 @@ class AppViewModel : ViewModel() {
     }
 
     fun sellItem(buyerDetails: BuyerDetails, item: Items) {
+        val currentUser = FirebaseAuth.getInstance().currentUser?.uid ?: ""
         viewModelScope.launch {
             if (item.currentStock < buyerDetails.requestedQuantity) {
                 _message.value = "Out of Stock"
@@ -113,9 +118,12 @@ class AppViewModel : ViewModel() {
             val buyerDocRef = db.collection("buyerDetails").document()
             val newBuyer = buyerDetails.copy(
                 firestoreId = buyerDocRef.id,
+                buyerUid = currentUser,
                 itemName = item.name,
-                totalSales = item.salesPrice * buyerDetails.requestedQuantity,
-                profit = (item.salesPrice - item.unitPrice) * buyerDetails.requestedQuantity
+                status = false,
+                createdAt = Timestamp.now(),
+                SingleItemSales = item.salesPrice * buyerDetails.requestedQuantity,
+                SingleItemprofit = (item.salesPrice - item.unitPrice) * buyerDetails.requestedQuantity
             )
             buyerDocRef.set(newBuyer)
             _message.value = "Item Sold Successfully"

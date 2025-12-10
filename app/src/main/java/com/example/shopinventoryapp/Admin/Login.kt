@@ -1,10 +1,9 @@
-package com.example.shopinventoryapp
+package com.example.shopinventoryapp.Admin
 
 
-import android.app.Activity
 import android.util.Log
+import android.util.Patterns
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -37,16 +36,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.shopinventoryapp.AppViewModel
+import com.example.shopinventoryapp.SessionManager
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
-fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit, viewModel: AppViewModel) {
+fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit,viewModel: AppViewModel) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
     LaunchedEffect(Unit) {
@@ -147,6 +145,7 @@ fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit, viewMo
 
                         val uid = FirebaseAuth.getInstance().currentUser?.uid
                             ?: return@addOnCompleteListener
+
                         viewModel.AdminLogin(uid, email,"Admin")
                         navcontroller.navigate("DashBoard1") {
                             popUpTo(0)
@@ -168,5 +167,5 @@ fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit, viewMo
 }
 
 fun isValidEmail(email: String): Boolean {
-    return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    return Patterns.EMAIL_ADDRESS.matcher(email).matches()
 }
