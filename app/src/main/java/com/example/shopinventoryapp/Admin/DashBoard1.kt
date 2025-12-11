@@ -47,9 +47,9 @@ import com.example.shopinventoryapp.SessionManager
 fun DashBoard1(
     NavigateToAddItem: () -> Unit,
     NavigateToBuyerDetails: () -> Unit,
-    NavigateToViewItem:()-> Unit,
-    NavigateToUsers:()->Unit,
-    Logout:()->Unit,
+    NavigateToViewItem: () -> Unit,
+    NavigateToUsers: () -> Unit,
+    Logout: () -> Unit,
     viewModel: AppViewModel = viewModel()
 ) {
     val buyers by viewModel.buyerDetails.collectAsState(initial = emptyList())
@@ -75,7 +75,8 @@ fun DashBoard1(
                 actions = {
                     IconButton(onClick = {
                         Logout()
-                        sessionManager.logout()}) {
+                        sessionManager.logout()
+                    }) {
                         Icon(
                             imageVector = Icons.Default.Logout,
                             contentDescription = "Back",
@@ -159,7 +160,7 @@ fun DashBoard1(
                             Color(0xFF008080),
                             shape = RoundedCornerShape(25.dp)
                         )
-                        .clickable { NavigateToUsers()}
+                        .clickable { NavigateToUsers() }
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center

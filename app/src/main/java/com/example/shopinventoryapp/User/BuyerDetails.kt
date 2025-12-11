@@ -57,6 +57,7 @@ fun BuyerDetails(
         uid?.let { viewModel.getUsers(it) }
 
     }
+
     val details by viewModel.buyerDetails.collectAsState(initial = emptyList())
     val users by viewModel.user.collectAsState(initial = Users())
     Text("Buyer Details")

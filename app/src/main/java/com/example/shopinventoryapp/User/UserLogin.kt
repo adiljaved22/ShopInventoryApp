@@ -144,8 +144,9 @@ fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
             }
             Firebase.auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
-                    if (task.isSuccessful){
-                        val uid = FirebaseAuth.getInstance().currentUser?.uid?:return@addOnCompleteListener
+                    if (task.isSuccessful) {
+                        val uid = FirebaseAuth.getInstance().currentUser?.uid
+                            ?: return@addOnCompleteListener
                         val db = FirebaseFirestore.getInstance()
                         db.collection("users").document(uid).get()
                             .addOnSuccessListener { doc ->
@@ -154,7 +155,8 @@ fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
                                         .show()
 
                                 } else {
-                                    Toast.makeText(context, "Admin login", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Admin login", Toast.LENGTH_SHORT)
+                                        .show()
 
                                 }
                             }
@@ -172,7 +174,7 @@ fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
                             popUpTo(0)
                             launchSingleTop = true
                         }
-                    }else {
+                    } else {
                         Toast.makeText(context, "Login Failed", Toast.LENGTH_SHORT).show()
                     }
                 }

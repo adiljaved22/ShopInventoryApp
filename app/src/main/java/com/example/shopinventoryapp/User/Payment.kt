@@ -46,9 +46,15 @@ import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Payment(viewModel: AppViewModel, NavigateToPayment: () -> Unit, onBackClick: () -> Unit) {
-    val uid = FirebaseAuth.getInstance().currentUser?.uid
+fun Payment(
+    uid: String?,
+    viewModel: AppViewModel,
+    NavigateToPayment: () -> Unit,
+    onBackClick: () -> Unit
+) {
 
+
+    val uid =uid?: FirebaseAuth.getInstance().currentUser?.uid
     LaunchedEffect(uid) {
         uid?.let { viewModel.displayBuyerDetails(it) }
         uid?.let { viewModel.getUsers(it) }
@@ -231,7 +237,7 @@ fun ItemCard3(details: BuyerDetails) {
                     horizontalArrangement = Arrangement.End
                 ) {
                     Text(
-                        text = "Rs ${"%.2f".format(details.totalprice)}",
+                        text = "Rs:${details.totalprice}",
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
                         color = MaterialTheme.colorScheme.error

@@ -29,7 +29,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
-fun AdminAurUser(NavigateToLogin: () -> Unit,NavigateToDashBoard2:()->Unit,navcontroller: NavController) {
+fun AdminAurUser(
+    NavigateToLogin: () -> Unit,
+    NavigateToDashBoard2: () -> Unit,
+    navcontroller: NavController
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,7 +60,7 @@ fun AdminAurUser(NavigateToLogin: () -> Unit,NavigateToDashBoard2:()->Unit,navco
                 modifier = Modifier
                     .size(130.dp)
                     .background(
-                        Color(0xFFFF6347 ),
+                        Color(0xFFFF6347),
                         shape = RoundedCornerShape(25.dp)
                     )
                     .clickable { navcontroller.navigate("Login") }

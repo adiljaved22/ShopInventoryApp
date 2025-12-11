@@ -2,6 +2,7 @@ package com.example.shopinventoryapp.Admin
 
 import android.content.ContentValues.TAG
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +35,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.shopinventoryapp.AppViewModel
 import com.example.shopinventoryapp.R
 import com.example.shopinventoryapp.Users
@@ -42,8 +44,8 @@ import com.google.firebase.firestore.firestore
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UsersList(viewModel: AppViewModel, NavigateToUsers: () -> Unit, onBackClick: () -> Unit) {
-    val context = LocalContext.current
+fun UsersList(viewModel: AppViewModel, NavigateToUsers: () -> Unit, onBackClick: () -> Unit,navController: NavController) {
+
 
     var userList by remember { mutableStateOf(emptyList<Users>()) }
 
@@ -79,6 +81,9 @@ fun UsersList(viewModel: AppViewModel, NavigateToUsers: () -> Unit, onBackClick:
         }
     )
     { padding ->
+        if (userList.isEmpty()) {
+            println("No user Available")
+        } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -88,25 +93,33 @@ fun UsersList(viewModel: AppViewModel, NavigateToUsers: () -> Unit, onBackClick:
             ) {
                 items(userList) { profile ->
 
-                    card(profile)
+                    card(profile, onclick = { navController.navigate("payment/${profile.uid}") })
 
                 }
             }
 
-    }
-
-}
-
-@Composable
-fun card(user: Users) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(6.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = user.displayName, color = Color.Black, fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
-            Text(text = user.email, color = Color.Black)
         }
-    }
 
+    }
 }
+    @Composable
+    fun card(user: Users, onclick: () -> Unit) {
+        Card(
+            modifier = Modifier.fillMaxWidth().clickable {
+                onclick()
+
+            },
+            elevation = CardDefaults.cardElevation(6.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = user.displayName,
+                    color = Color.Black,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(text = user.email, color = Color.Black)
+            }
+        }
+
+    }

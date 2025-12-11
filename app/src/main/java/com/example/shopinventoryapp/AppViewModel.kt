@@ -13,8 +13,8 @@ class AppViewModel : ViewModel() {
     private val _items = MutableStateFlow<List<Items>>(emptyList())
     val items: StateFlow<List<Items>> = _items
 
-     private val _buyerDetails = MutableStateFlow<List<BuyerDetails>>(emptyList())
-        val buyerDetails: StateFlow<List<BuyerDetails>> = _buyerDetails
+    private val _buyerDetails = MutableStateFlow<List<BuyerDetails>>(emptyList())
+    val buyerDetails: StateFlow<List<BuyerDetails>> = _buyerDetails
 
     private val _message = MutableStateFlow("")
     val message: StateFlow<String> = _message
@@ -64,15 +64,16 @@ class AppViewModel : ViewModel() {
             }
         }
     }
-/*    fun displayUsers() {
-        val db = FirebaseFirestore.getInstance()
-        db.collection("users").addSnapshotListener { snapshot, e ->
-            if (snapshot != null) {
-                val usersList = snapshot.toObjects(Users::class.java)
-                _users.value = usersList
+
+    /*    fun displayUsers() {
+            val db = FirebaseFirestore.getInstance()
+            db.collection("users").addSnapshotListener { snapshot, e ->
+                if (snapshot != null) {
+                    val usersList = snapshot.toObjects(Users::class.java)
+                    _users.value = usersList
+                }
             }
-        }
-    }*/
+        }*/
     fun displayBuyerDetails(uid: String? = null) {
         val db = FirebaseFirestore.getInstance()
         val base = db.collection("buyerDetails")
@@ -80,7 +81,7 @@ class AppViewModel : ViewModel() {
         query.addSnapshotListener { snapshot, _ ->
             if (snapshot != null) {
                 val list = snapshot.toObjects(BuyerDetails::class.java)
-               _buyerDetails.value = list
+                _buyerDetails.value = list
             }
         }
     }

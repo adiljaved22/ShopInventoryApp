@@ -44,7 +44,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 
 @Composable
-fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit,viewModel: AppViewModel) {
+fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit, viewModel: AppViewModel) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
     LaunchedEffect(Unit) {
@@ -146,7 +146,7 @@ fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit,viewMod
                         val uid = FirebaseAuth.getInstance().currentUser?.uid
                             ?: return@addOnCompleteListener
 
-                        viewModel.AdminLogin(uid, email,"Admin")
+                        viewModel.AdminLogin(uid, email, "Admin")
                         navcontroller.navigate("DashBoard1") {
                             popUpTo(0)
                             launchSingleTop = true

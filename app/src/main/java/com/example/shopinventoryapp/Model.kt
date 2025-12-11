@@ -12,7 +12,6 @@ data class Items(
     val currentStock: Int = 0,
     val salesPrice: Double = 0.0,
     val purchasePrice: Double = 0.0,
-
     val profit: Double = 0.0,
 )
 
@@ -24,7 +23,7 @@ data class BuyerDetails(
     val totalprice: Double = 0.0,
     val SingleItemSales: Double = 0.0,
     val SingleItemprofit: Double = 0.0,
-    val status: Boolean?=false,
+    val status: Boolean? = false,
     val createdAt: Timestamp = Timestamp.now()
 
 )
@@ -38,6 +37,7 @@ data class SignUp(
 )
 
 data class Users(
+    val uid: String="",
     val displayName: String = "",
     val email: String = "",
 )

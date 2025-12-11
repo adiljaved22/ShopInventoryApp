@@ -1,4 +1,5 @@
 package com.example.shopinventoryapp.User
+
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,7 +45,11 @@ import com.google.firebase.auth.auth
 import kotlin.text.ifEmpty
 
 @Composable
-fun UserSignUp(viewModel: AppViewModel, navController: NavController, NavigateToUserLogin: () -> Unit) {
+fun UserSignUp(
+    viewModel: AppViewModel,
+    navController: NavController,
+    NavigateToUserLogin: () -> Unit
+) {
     val context = LocalContext.current
     var displayName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -68,10 +73,12 @@ fun UserSignUp(viewModel: AppViewModel, navController: NavController, NavigateTo
                 .padding(top = 8.dp),
             value = email,
             onValueChange = { email = it },
-            label = { Text(
-                text = emailError.ifEmpty { "Email" },
-                color = if (emailError.isNotEmpty()) Red else Unspecified
-            ) },
+            label = {
+                Text(
+                    text = emailError.ifEmpty { "Email" },
+                    color = if (emailError.isNotEmpty()) Red else Unspecified
+                )
+            },
             leadingIcon = { Icon(imageVector = Icons.Filled.Email, contentDescription = "") }
         )
         OutlinedTextField(
@@ -80,10 +87,12 @@ fun UserSignUp(viewModel: AppViewModel, navController: NavController, NavigateTo
                 .padding(top = 8.dp),
             value = displayName,
             onValueChange = { displayName = it },
-            label = { Text(
-                text =displayNameError.ifEmpty { "Username" },
-                color = if (displayNameError.isNotEmpty()) Red else Unspecified
-            ) },
+            label = {
+                Text(
+                    text = displayNameError.ifEmpty { "Username" },
+                    color = if (displayNameError.isNotEmpty()) Red else Unspecified
+                )
+            },
             leadingIcon = { Icon(imageVector = Icons.Filled.Person, contentDescription = "") }
         )
 
@@ -140,8 +149,8 @@ fun UserSignUp(viewModel: AppViewModel, navController: NavController, NavigateTo
                         if (task.isSuccessful) {
                             val currentUser = FirebaseAuth.getInstance().currentUser
                             val uid = currentUser?.uid
-                          println("DisplayName , ${displayName},Email,${email},uid,${uid}")
-                            viewModel.UserSignUp(displayName,email,"user",uid)
+                            println("DisplayName , ${displayName},Email,${email},uid,${uid}")
+                            viewModel.UserSignUp(displayName, email, "user", uid)
                             NavigateToUserLogin()
                             Toast.makeText(context, "Sign Up Successful", Toast.LENGTH_SHORT).show()
 

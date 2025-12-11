@@ -194,7 +194,7 @@ fun DashBoard2(
                     modifier = Modifier
                         .size(130.dp)
                         .background(Color(0xFF00796B), shape = RoundedCornerShape(25.dp))
-                        .clickable { navController.navigate("Payment") }
+                        .clickable { NavigateToPayment() }
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
