@@ -24,9 +24,10 @@ data class BuyerDetails(
     val SingleItemSales: Double = 0.0,
     val SingleItemprofit: Double = 0.0,
     val status: Boolean? = false,
-    val createdAt: Timestamp = Timestamp.now()
+    val createdAt: Timestamp = Timestamp.now(),
 
-)
+
+    )
 
 data class SignUp(
     val displayName: String = "",

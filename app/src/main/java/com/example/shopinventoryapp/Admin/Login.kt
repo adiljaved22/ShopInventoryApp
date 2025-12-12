@@ -1,6 +1,5 @@
 package com.example.shopinventoryapp.Admin
 
-
 import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
@@ -39,14 +38,16 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.shopinventoryapp.AppViewModel
 import com.example.shopinventoryapp.SessionManager
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 
 @Composable
-fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit, viewModel: AppViewModel) {
+fun Login(navcontroller: NavController, viewModel: AppViewModel) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
+
     LaunchedEffect(Unit) {
         if (sessionManager.isLoggedIn()) {
             Log.e("loginscreen", "${sessionManager.isLoggedIn()}")
@@ -54,10 +55,8 @@ fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit, viewMo
                 popUpTo(0) { inclusive = true }
                 launchSingleTop = true
             }
-
         }
     }
-
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -74,7 +73,6 @@ fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit, viewMo
     ) {
         Text("Login", fontWeight = FontWeight.Bold)
 
-
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
@@ -87,7 +85,6 @@ fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit, viewMo
                     color = if (emailError.isNotEmpty()) Red else Unspecified
                 )
             },
-
             leadingIcon = { Icon(imageVector = Icons.Filled.Email, contentDescription = "") }
         )
 
@@ -99,24 +96,12 @@ fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit, viewMo
                     text = passwordError.ifEmpty { "Password" },
                     color = if (passwordError.isNotEmpty()) Red else Unspecified
                 )
-
-
             },
             leadingIcon = { Icon(imageVector = Icons.Filled.Lock, contentDescription = "") },
             visualTransformation =
-                if (passwordVisible) {
-                    VisualTransformation.None
-
-                } else {
-                    PasswordVisualTransformation('*')
-                },
+                if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation('*'),
             trailingIcon = {
-                val visibilityIcon =
-                    if (passwordVisible) {
-                        Icons.Filled.Visibility
-                    } else {
-                        Icons.Filled.VisibilityOff
-                    }
+                val visibilityIcon = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(imageVector = visibilityIcon, contentDescription = null)
                 }
@@ -125,6 +110,7 @@ fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit, viewMo
         )
 
         Spacer(modifier = Modifier.height(16.dp))
+
         Button(onClick = {
             emailError = when {
                 email.isBlank() -> "Email is required"
@@ -136,23 +122,62 @@ fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit, viewMo
                 password.length < 6 -> "Password must be at least 6 characters"
                 else -> ""
             }
-            if (emailError.isNotEmpty() || passwordError.isNotEmpty()) {
-                return@Button
-            }
+            if (emailError.isNotEmpty() || passwordError.isNotEmpty()) return@Button
+
+            // sign in
             Firebase.auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
+                        // got auth UID
+                        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@addOnCompleteListener
+                        val db = FirebaseFirestore.getInstance()
 
-                        val uid = FirebaseAuth.getInstance().currentUser?.uid
-                            ?: return@addOnCompleteListener
+                        // check users collection first
+                        db.collection("users").document(uid).get()
+                            .addOnSuccessListener { userDoc ->
+                                if (userDoc.exists()) {
+                                    val role = userDoc.getString("role") ?: "user"
+                                    if (role == "Admin") {
+                                        // confirmed admin
+                                        sessionManager.saveLogin()
+                                        navcontroller.navigate("DashBoard1") {
+                                            popUpTo(0)
+                                            launchSingleTop = true
+                                        }
+                                        Toast.makeText(context, "Admin Login Successful", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        // not admin: block
+                                        FirebaseAuth.getInstance().signOut()
+                                        Toast.makeText(context, "Not authorized as admin", Toast.LENGTH_LONG).show()
+                                    }
+                                } else {
+                                    // fallback: legacy Admin collection (temporary)
+                                    db.collection("Admin").document(uid).get()
+                                        .addOnSuccessListener { adminDoc ->
+                                            if (adminDoc.exists()) {
+                                                // TEMP: allow, but you should migrate this doc into /users with role="admin"
+                                                sessionManager.saveLogin()
+                                                navcontroller.navigate("DashBoard1") {
+                                                    popUpTo(0)
+                                                    launchSingleTop = true
+                                                }
+                                                Toast.makeText(context, "Admin Login (legacy)", Toast.LENGTH_SHORT).show()
+                                            } else {
+                                                FirebaseAuth.getInstance().signOut()
+                                                Toast.makeText(context, "Account not registered. Contact support.", Toast.LENGTH_LONG).show()
+                                            }
+                                        }
+                                        .addOnFailureListener { e ->
+                                            FirebaseAuth.getInstance().signOut()
+                                            Toast.makeText(context, "Role check failed: ${e.message}", Toast.LENGTH_LONG).show()
+                                        }
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                FirebaseAuth.getInstance().signOut()
+                                Toast.makeText(context, "Role check failed: ${e.message}", Toast.LENGTH_LONG).show()
+                            }
 
-                        viewModel.AdminLogin(uid, email, "Admin")
-                        navcontroller.navigate("DashBoard1") {
-                            popUpTo(0)
-                            launchSingleTop = true
-                        }
-                        sessionManager.saveLogin()
-                        Toast.makeText(context, "Login Successful", Toast.LENGTH_SHORT).show()
                     } else {
                         Log.e("LOGIN", "Login Failed: ${task.exception?.message}")
                         Toast.makeText(context, "Login Failed", Toast.LENGTH_SHORT).show()
@@ -161,8 +186,6 @@ fun Login(navcontroller: NavController, NavigateToDashBoard1: () -> Unit, viewMo
         }) {
             Text("Login")
         }
-
-
     }
 }
 

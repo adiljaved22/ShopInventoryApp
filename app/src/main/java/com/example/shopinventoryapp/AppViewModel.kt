@@ -1,12 +1,17 @@
 package com.example.shopinventoryapp
 
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AppViewModel : ViewModel() {
@@ -21,9 +26,42 @@ class AppViewModel : ViewModel() {
     private val _users = MutableStateFlow<Users?>(null)
     val user: StateFlow<Users?> = _users
 
+
+
     init {
         displayItems()
-        displayBuyerDetails()
+        /*    displayBuyerDetails()*/
+    }
+
+    private val _payingItemId = MutableStateFlow<String?>(null)
+    val payingItemId = _payingItemId.asStateFlow()
+
+    fun payItem(firestoreId: String) {
+
+        if (_payingItemId.value == firestoreId) return
+
+        _payingItemId.value = firestoreId
+
+        val db = Firebase.firestore
+        val collectionName = "buyerDetails"
+        val docRef = db.collection(collectionName).document(firestoreId)
+        val adminUid = FirebaseAuth.getInstance().currentUser?.uid ?: "unknown"
+
+        val updates = hashMapOf<String, Any>(
+            "status" to true,
+            "paidAt" to FieldValue.serverTimestamp(),
+            "paidBy" to adminUid
+        )
+
+        docRef.update(updates)
+            .addOnSuccessListener {
+                _payingItemId.value = null
+
+            }
+            .addOnFailureListener { e ->
+                _payingItemId.value = null
+
+            }
     }
 
     fun getUsers(uid: String) {
@@ -65,15 +103,7 @@ class AppViewModel : ViewModel() {
         }
     }
 
-    /*    fun displayUsers() {
-            val db = FirebaseFirestore.getInstance()
-            db.collection("users").addSnapshotListener { snapshot, e ->
-                if (snapshot != null) {
-                    val usersList = snapshot.toObjects(Users::class.java)
-                    _users.value = usersList
-                }
-            }
-        }*/
+
     fun displayBuyerDetails(uid: String? = null) {
         val db = FirebaseFirestore.getInstance()
         val base = db.collection("buyerDetails")
@@ -110,10 +140,13 @@ class AppViewModel : ViewModel() {
                 _message.value = "Out of Stock"
                 return@launch
             }
+
             val updatedItem = item.copy(
                 currentStock = item.currentStock - buyerDetails.requestedQuantity,
                 profit = item.profit + (item.salesPrice - item.unitPrice) * buyerDetails.requestedQuantity
+
             )
+
             val db = FirebaseFirestore.getInstance()
             db.collection("items").document(item.firestoreId).set(updatedItem)
             val buyerDocRef = db.collection("buyerDetails").document()
@@ -131,16 +164,18 @@ class AppViewModel : ViewModel() {
         }
     }
 
-    fun AdminLogin(uid: String, email: String, role: String) {
+  /*  fun AdminLogin(uid: String, email: String, role: String) {
 
         val db = FirebaseFirestore.getInstance()
         val admin = AdLogin(uid = uid, email = email, role = role)
         db.collection("Admin").document(uid).set(admin)
-            .addOnSuccessListener { println("Admin Added") }
+            .addOnSuccessListener {
+                println("Admin Added")
+            }
             .addOnFailureListener { e -> println("Admin Failed,$e") }
 
 
-    }
+    }*/
 
     fun UserSignUp(displayName: String, email: String, role: String, uid: String?) {
         val db = FirebaseFirestore.getInstance()
@@ -153,29 +188,6 @@ class AppViewModel : ViewModel() {
             }.addOnFailureListener {
                 println("User Failed")
             }
-
-
-        /*   fun logic(uid: String, email: String,context: Context) {
-           val db = FirebaseFirestore.getInstance()
-           val usersCollection = db.collection("Users")
-           usersCollection.whereEqualTo("role", "Admin").get()
-               .addOnSuccessListener { snapshots ->
-                   val role = if (snapshots.isEmpty) {
-                       "Admin"
-                   } else {
-                       "User"
-                   }
-                   val userMap = mapOf("email" to email, "role" to role)
-                   usersCollection.document(uid).set(userMap)
-                       .addOnSuccessListener {
-                           Toast.makeText(context, "Signup Successful as $role", Toast.LENGTH_SHORT)
-                               .show()
-
-                       }.addOnFailureListener {
-                           Toast.makeText(context, "Signup Failed: ${it.message}", Toast.LENGTH_SHORT).show()
-                       }
-               }
-       }*/
 
 
     }

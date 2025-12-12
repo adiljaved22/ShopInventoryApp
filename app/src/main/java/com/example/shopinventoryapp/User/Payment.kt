@@ -17,6 +17,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,12 +28,16 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,19 +49,22 @@ import androidx.compose.ui.unit.sp
 import com.example.shopinventoryapp.AppViewModel
 import com.example.shopinventoryapp.BuyerDetails
 import com.example.shopinventoryapp.Users
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Payment(
-    uid: String?,
+    uuid: String?,
     viewModel: AppViewModel,
     NavigateToPayment: () -> Unit,
     onBackClick: () -> Unit
 ) {
 
 
-    val uid =uid?: FirebaseAuth.getInstance().currentUser?.uid
+    val uid = uuid ?: FirebaseAuth.getInstance().currentUser?.uid
+
     LaunchedEffect(uid) {
         uid?.let { viewModel.displayBuyerDetails(it) }
         uid?.let { viewModel.getUsers(it) }
@@ -62,11 +72,11 @@ fun Payment(
 
     val details by viewModel.buyerDetails.collectAsState(initial = emptyList())
     val users by viewModel.user.collectAsState(initial = Users())
-
+    val payingItemId by viewModel.payingItemId.collectAsState()
     // totals
     val grandTotal = details.sumOf { it.totalprice }
-    /* val pendingTotal = details.filter { it.paid.not() }.sumOf { it.totalprice }
-     val paidTotal = details.filter { it.paid }.sumOf { it.totalprice }*/
+    val paidTotal = details.filter { it.status == true }.sumOf { it.totalprice }
+    val pendingTotal = grandTotal - paidTotal
 
     Scaffold(
         topBar = {
@@ -132,10 +142,19 @@ fun Payment(
                         Spacer(modifier = Modifier.height(4.dp))
                         Row {
                             Text("Pending: ", fontSize = 12.sp, color = Color.Gray)
-                            /* Text("Rs ${"%.2f".format(pendingTotal)}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                             Spacer(modifier = Modifier.width(8.dp))
-                             Text("Paid: ", fontSize = 12.sp, color = Color.Gray)
-                             Text("Rs ${"%.2f".format(paidTotal)}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2E7D32))*/
+                            Text(
+                                "Rs ${"%.2f".format(pendingTotal)}",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Paid: ", fontSize = 12.sp, color = Color.Gray)
+                            Text(
+                                "Rs ${"%.2f".format(paidTotal)}",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF2E7D32)
+                            )
                         }
                     }
                 }
@@ -162,7 +181,15 @@ fun Payment(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(details) { item ->
-                    ItemCard3(item) // uses the ItemCard3 below
+                    val currentUserId = Firebase.auth.currentUser?.uid
+                    val IsAdminView = uuid != null && uuid != currentUserId
+                    ItemCard3(
+                        item,
+                        IsAdminView = IsAdminView,
+                        isProcessing = (payingItemId == item.firestoreId),
+                        onPayClick = {
+                            viewModel.payItem(item.firestoreId)
+                        })
                 }
             }
         }
@@ -170,8 +197,11 @@ fun Payment(
 }
 
 @Composable
-fun ItemCard3(details: BuyerDetails) {
-
+fun ItemCard3(
+    details: BuyerDetails, IsAdminView: Boolean, isProcessing: Boolean,
+    onPayClick: () -> Unit
+) {
+    var showConfirm by remember { mutableStateOf(false) }
     val statusIsPaid = details.status == true
     val statusText = if (statusIsPaid) "PAID" else "PENDING"
     val statusColor = if (statusIsPaid) Color(0xFF4CAF50) else Color(0xFFFFA726)
@@ -222,6 +252,20 @@ fun ItemCard3(details: BuyerDetails) {
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.primary
                     )
+                    if (IsAdminView && !statusIsPaid) {
+                         if (isProcessing) {
+                             Text(text = "Processing", fontSize = 12.sp, color = Color.Gray)
+
+                         } else {
+                        IconButton(onClick = { showConfirm = true }) {
+                            Icon(
+                                imageVector = Icons.Filled.CheckCircle,
+                                contentDescription = null,
+                                tint = Color(0xFF2E7D32)
+                            )
+                        }
+                        }
+                    }
 
                     /*     Text(
                              text = details.date ?: "",
@@ -242,7 +286,28 @@ fun ItemCard3(details: BuyerDetails) {
                         fontSize = 20.sp,
                         color = MaterialTheme.colorScheme.error
                     )
+
                 }
+            }
+            if (showConfirm) {
+                AlertDialog(
+                    onDismissRequest = { showConfirm = false },
+                    title = { Text("Confirm payment") },
+                    text = { Text("Mark \"${details.itemName}\" as PAID?") },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                showConfirm = false
+                                onPayClick()
+                            }
+                        ) {
+                            Text("Confirm")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showConfirm = false }) { Text("Cancel") }
+                    }
+                )
             }
         }
     }

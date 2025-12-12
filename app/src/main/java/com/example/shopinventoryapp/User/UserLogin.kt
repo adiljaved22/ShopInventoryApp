@@ -1,10 +1,7 @@
 package com.example.shopinventoryapp.User
 
-import com.example.shopinventoryapp.SessionManager
-import android.app.Activity
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,15 +39,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.google.firebase.Firebase
+import com.example.shopinventoryapp.SessionManager
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 
 @Composable
 fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
+
     LaunchedEffect(Unit) {
         if (sessionManager.isLoggedIn()) {
             Log.e("loginscreen", "${sessionManager.isLoggedIn()}")
@@ -58,7 +57,6 @@ fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
                 popUpTo(0) { inclusive = true }
                 launchSingleTop = true
             }
-
         }
     }
 
@@ -77,7 +75,6 @@ fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
     ) {
         Text("Login", fontWeight = FontWeight.Bold)
 
-
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
@@ -90,7 +87,6 @@ fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
                     color = if (emailError.isNotEmpty()) Red else Unspecified
                 )
             },
-
             leadingIcon = { Icon(imageVector = Icons.Filled.Email, contentDescription = "") }
         )
 
@@ -102,24 +98,13 @@ fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
                     text = passwordError.ifEmpty { "Password" },
                     color = if (passwordError.isNotEmpty()) Red else Unspecified
                 )
-
-
             },
             leadingIcon = { Icon(imageVector = Icons.Filled.Lock, contentDescription = "") },
             visualTransformation =
-                if (passwordVisible) {
-                    VisualTransformation.None
-
-                } else {
-                    PasswordVisualTransformation('*')
-                },
+                if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation('*'),
             trailingIcon = {
                 val visibilityIcon =
-                    if (passwordVisible) {
-                        Icons.Filled.Visibility
-                    } else {
-                        Icons.Filled.VisibilityOff
-                    }
+                    if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(imageVector = visibilityIcon, contentDescription = null)
                 }
@@ -128,6 +113,7 @@ fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
         )
 
         Spacer(modifier = Modifier.height(16.dp))
+
         Button(onClick = {
             emailError = when {
                 email.isBlank() -> "Email is required"
@@ -139,48 +125,89 @@ fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
                 password.length < 6 -> "Password must be at least 6 characters"
                 else -> ""
             }
-            if (emailError.isNotEmpty() || passwordError.isNotEmpty()) {
-                return@Button
-            }
+            if (emailError.isNotEmpty() || passwordError.isNotEmpty()) return@Button
+
             Firebase.auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         val uid = FirebaseAuth.getInstance().currentUser?.uid
                             ?: return@addOnCompleteListener
                         val db = FirebaseFirestore.getInstance()
+
+                        // check users collection for role
                         db.collection("users").document(uid).get()
-                            .addOnSuccessListener { doc ->
-                                if (doc.exists()) {
-                                    Toast.makeText(context, "User login", Toast.LENGTH_SHORT)
-                                        .show()
-
+                            .addOnSuccessListener { userDoc ->
+                                if (userDoc.exists()) {
+                                    val role = userDoc.getString("role") ?: "user"
+                                    if (role == "user") {
+                                        sessionManager.saveLogin()
+                                        Toast.makeText(
+                                            context,
+                                            "User Login Successful",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        navcontroller.navigate("DashBoard2") {
+                                            popUpTo(0)
+                                            launchSingleTop = true
+                                        }
+                                    } else {
+                                        FirebaseAuth.getInstance().signOut()
+                                        Toast.makeText(
+                                            context,
+                                            "Not authorized as user",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
                                 } else {
-                                    Toast.makeText(context, "Admin login", Toast.LENGTH_SHORT)
-                                        .show()
-
+                                    // fallback: if user exists only in Admin collection treat as admin and block user entry
+                                    db.collection("Admin").document(uid).get()
+                                        .addOnSuccessListener { adminDoc ->
+                                            if (adminDoc.exists()) {
+                                                FirebaseAuth.getInstance().signOut()
+                                                Toast.makeText(
+                                                    context,
+                                                    "This account is an Admin; use admin login",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            } else {
+                                                FirebaseAuth.getInstance().signOut()
+                                                Toast.makeText(
+                                                    context,
+                                                    "Account not registered. Contact support.",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+                                        }
+                                        .addOnFailureListener { e ->
+                                            FirebaseAuth.getInstance().signOut()
+                                            Toast.makeText(
+                                                context,
+                                                "Role check failed: ${e.message}",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
                                 }
                             }
                             .addOnFailureListener { e ->
+                                FirebaseAuth.getInstance().signOut()
                                 Toast.makeText(
                                     context,
                                     "Role check failed: ${e.message}",
-                                    Toast.LENGTH_SHORT
+                                    Toast.LENGTH_LONG
                                 ).show()
-
                             }
-                        sessionManager.saveLogin()
-                        Toast.makeText(context, "Login Successful", Toast.LENGTH_SHORT).show()
-                        navcontroller.navigate("DashBoard2") {
-                            popUpTo(0)
-                            launchSingleTop = true
-                        }
                     } else {
-                        Toast.makeText(context, "Login Failed", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Login Failed: ${task.exception?.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
         }) {
             Text("Login")
         }
+
         Spacer(modifier = Modifier.height(8.dp))
         Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Row {
@@ -191,8 +218,6 @@ fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
                     modifier = Modifier.clickable { navcontroller.navigate("UserSignUp") })
             }
         }
-
-
     }
 }
 

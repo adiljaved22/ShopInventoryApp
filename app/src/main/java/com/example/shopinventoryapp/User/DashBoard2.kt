@@ -1,6 +1,7 @@
 package com.example.shopinventoryapp.User
 
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -238,6 +239,7 @@ fun BuyItems(
 
     val list by viewModel.items.collectAsState(initial = emptyList())
     var selectedItem by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -259,6 +261,7 @@ fun BuyItems(
                 label = { Text("Select Item") },
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpended) }
+
             )
 
             ExposedDropdownMenu(
@@ -283,8 +286,10 @@ fun BuyItems(
             value = quantity,
             onValueChange = { quantity = it },
             label = { Text("Quantity") },
+
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
+
         )
 
         if (errorMsg.isNotEmpty()) {
@@ -296,6 +301,8 @@ fun BuyItems(
             val qty = quantity.toIntOrNull() ?: 0
             val sale = itemToSell?.salesPrice ?: 0.0
             val totalprice = (sale * qty)
+            quantity = ""
+            selectedItem = ""
 
 
 
@@ -303,6 +310,13 @@ fun BuyItems(
                 itemToSell == null -> errorMsg = "Please select an item"
                 qty <= 0 -> errorMsg = "Enter a valid quantity"
                 qty > itemToSell.currentStock -> errorMsg = "Out of Stock"
+                qty <= itemToSell.currentStock -> Toast.makeText(
+                    context,
+                    "Thanks for buying",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+
                 else -> {
 
                     viewModel.sellItem(
@@ -318,6 +332,7 @@ fun BuyItems(
                 }
             }
         }) {
+
             Text("Buy")
         }
 

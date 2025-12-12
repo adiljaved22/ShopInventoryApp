@@ -45,15 +45,17 @@ fun Navigation(sessionManager: SessionManager) {
         }
         composable("Login") {
             Login(
-                navcontroller = navController, viewModel = viewModel(), NavigateToDashBoard1 = {
+                navcontroller = navController, viewModel = viewModel(),
+               /* NavigateToDashBoard1 = {
 
-                    sessionManager.saveLogin()
+*//*
+                    sessionManager.saveLogin()*//*
 
                     navController.navigate("DashBoard1") {
                         popUpTo(0) { inclusive = true }
                         launchSingleTop = true
                     }
-                })
+                }*/)
         }
         composable("UserLogin") {
             UserLogin(
@@ -161,7 +163,7 @@ fun Navigation(sessionManager: SessionManager) {
         }
         composable("Payment") {
             Payment(
-                uid = null,
+                uuid = null,
                 onBackClick = { navController.popBackStack() },
                 viewModel = viewModel(),
                 NavigateToPayment = {/*
@@ -179,7 +181,7 @@ fun Navigation(sessionManager: SessionManager) {
         ) { backStackEntry ->
             val uid = backStackEntry.arguments?.getString("uid")
             Payment(
-                uid = uid,
+                uuid = uid,
                 onBackClick = { navController.popBackStack() },
                 viewModel = viewModel(),
                 NavigateToPayment = {
@@ -202,16 +204,5 @@ fun Navigation(sessionManager: SessionManager) {
                     }
                 })
         }
-
-        /*  composable("BuyerDetails") {
-              BuyerDetails(
-                  onBackClick = { navController.popBackStack() },
-                  viewModel = viewModel(),
-                  NavigateToBuyerDetails = {
-                      navController.navigate("BuyerDetails") {
-                          launchSingleTop = true
-                      }
-                  })
-          }*/
     }
 }
