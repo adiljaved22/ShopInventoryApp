@@ -1,3 +1,4 @@
+/*
 package com.example.shopinventoryapp.Admin
 
 
@@ -142,4 +143,4 @@ fun ItemCard(details: BuyerDetails, viewModel: AppViewModel) {
 
         }
     }
-}
+}*/

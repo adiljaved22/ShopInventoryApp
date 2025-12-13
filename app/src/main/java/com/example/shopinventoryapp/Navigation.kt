@@ -12,7 +12,7 @@ import com.example.shopinventoryapp.Admin.DashBoard1
 import com.example.shopinventoryapp.Admin.Login
 import com.example.shopinventoryapp.Admin.UsersList
 import com.example.shopinventoryapp.Admin.ViewItems
-import com.example.shopinventoryapp.User.BuyerDetails
+
 import com.example.shopinventoryapp.User.DashBoard2
 import com.example.shopinventoryapp.User.Payment
 import com.example.shopinventoryapp.User.UserLogin

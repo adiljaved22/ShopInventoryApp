@@ -310,11 +310,7 @@ fun BuyItems(
                 itemToSell == null -> errorMsg = "Please select an item"
                 qty <= 0 -> errorMsg = "Enter a valid quantity"
                 qty > itemToSell.currentStock -> errorMsg = "Out of Stock"
-                qty <= itemToSell.currentStock -> Toast.makeText(
-                    context,
-                    "Thanks for buying",
-                    Toast.LENGTH_SHORT
-                ).show()
+
 
 
                 else -> {

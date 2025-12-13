@@ -21,8 +21,8 @@ data class BuyerDetails(
     val itemName: String = "",
     val requestedQuantity: Int = 0,
     val totalprice: Double = 0.0,
-    val SingleItemSales: Double = 0.0,
-    val SingleItemprofit: Double = 0.0,
+    val singleItemSales: Double = 0.0,
+    val singleItemprofit: Double = 0.0,
     val status: Boolean? = false,
     val createdAt: Timestamp = Timestamp.now(),
 

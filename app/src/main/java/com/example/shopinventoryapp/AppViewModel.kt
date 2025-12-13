@@ -21,16 +21,45 @@ class AppViewModel : ViewModel() {
     private val _buyerDetails = MutableStateFlow<List<BuyerDetails>>(emptyList())
     val buyerDetails: StateFlow<List<BuyerDetails>> = _buyerDetails
 
+
+    private val _adminTotalSales = MutableStateFlow(0.0)
+    val adminTotalSales: StateFlow<Double> = _adminTotalSales
+
+    private val _adminTotalProfit = MutableStateFlow(0.0)
+    val adminTotalProfit: StateFlow<Double> = _adminTotalProfit
+
+    fun loadAdminBuyerDetails() {
+        val db = FirebaseFirestore.getInstance()
+
+        db.collection("buyerDetails")
+            .addSnapshotListener { snapshot, _ ->
+                if (snapshot != null) {
+                    val list = snapshot.toObjects(BuyerDetails::class.java)
+                    _buyerDetails.value = list
+
+                 
+                    var totalSales = 0.0
+                    var totalProfit = 0.0
+
+                    list.forEach {
+                        totalSales += it.singleItemSales
+                        totalProfit += it.singleItemprofit
+                    }
+
+                    _adminTotalSales.value = totalSales
+                    _adminTotalProfit.value = totalProfit
+                }
+            }
+    }
     private val _message = MutableStateFlow("")
     val message: StateFlow<String> = _message
     private val _users = MutableStateFlow<Users?>(null)
     val user: StateFlow<Users?> = _users
 
 
-
     init {
         displayItems()
-        /*    displayBuyerDetails()*/
+
     }
 
     private val _payingItemId = MutableStateFlow<String?>(null)
@@ -156,26 +185,26 @@ class AppViewModel : ViewModel() {
                 itemName = item.name,
                 status = false,
                 createdAt = Timestamp.now(),
-                SingleItemSales = item.salesPrice * buyerDetails.requestedQuantity,
-                SingleItemprofit = (item.salesPrice - item.unitPrice) * buyerDetails.requestedQuantity
+                singleItemSales = item.salesPrice * buyerDetails.requestedQuantity,
+                singleItemprofit = (item.salesPrice - item.unitPrice) * buyerDetails.requestedQuantity
             )
             buyerDocRef.set(newBuyer)
             _message.value = "Item Sold Successfully"
         }
     }
 
-  /*  fun AdminLogin(uid: String, email: String, role: String) {
+    /*  fun AdminLogin(uid: String, email: String, role: String) {
 
-        val db = FirebaseFirestore.getInstance()
-        val admin = AdLogin(uid = uid, email = email, role = role)
-        db.collection("Admin").document(uid).set(admin)
-            .addOnSuccessListener {
-                println("Admin Added")
-            }
-            .addOnFailureListener { e -> println("Admin Failed,$e") }
+          val db = FirebaseFirestore.getInstance()
+          val admin = AdLogin(uid = uid, email = email, role = role)
+          db.collection("Admin").document(uid).set(admin)
+              .addOnSuccessListener {
+                  println("Admin Added")
+              }
+              .addOnFailureListener { e -> println("Admin Failed,$e") }
 
 
-    }*/
+      }*/
 
     fun UserSignUp(displayName: String, email: String, role: String, uid: String?) {
         val db = FirebaseFirestore.getInstance()

@@ -1,3 +1,4 @@
+/*
 package com.example.shopinventoryapp.User
 
 import androidx.compose.foundation.layout.Arrangement
@@ -142,4 +143,4 @@ fun ItemCard(details: BuyerDetails, viewModel: AppViewModel) {
 
         }
     }
-}
+}*/

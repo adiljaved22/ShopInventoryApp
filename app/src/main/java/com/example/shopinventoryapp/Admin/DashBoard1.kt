@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -52,9 +53,11 @@ fun DashBoard1(
     Logout: () -> Unit,
     viewModel: AppViewModel = viewModel()
 ) {
-    val buyers by viewModel.buyerDetails.collectAsState(initial = emptyList())
-    val totalSales = buyers.sumOf { it.SingleItemSales }
-    val totalProfit = buyers.sumOf { it.SingleItemprofit }
+    LaunchedEffect(Unit) {
+        viewModel.loadAdminBuyerDetails()
+    }
+  val totalSales by viewModel.adminTotalSales.collectAsState()
+    val totalProfit by viewModel.adminTotalProfit.collectAsState()
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
 
