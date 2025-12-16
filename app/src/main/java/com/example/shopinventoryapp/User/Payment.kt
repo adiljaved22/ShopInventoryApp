@@ -64,19 +64,19 @@ fun Payment(
 
 
     val uid = uuid ?: FirebaseAuth.getInstance().currentUser?.uid
-
     LaunchedEffect(uid) {
         uid?.let { viewModel.displayBuyerDetails(it) }
         uid?.let { viewModel.getUsers(it) }
+        uid?.let { viewModel.loadingPayment(it) }
     }
+
 
     val details by viewModel.buyerDetails.collectAsState(initial = emptyList())
     val users by viewModel.user.collectAsState(initial = Users())
     val payingItemId by viewModel.payingItemId.collectAsState()
-    // totals
-    val grandTotal = details.sumOf { it.totalprice }
-    val paidTotal = details.filter { it.status == true }.sumOf { it.totalprice }
-    val pendingTotal = grandTotal - paidTotal
+    val pendingpayment by viewModel.userPendingPayment.collectAsState()
+    val grandTotal by viewModel.userGrandTotal.collectAsState()
+    val paid by viewModel.paidTotal.collectAsState()
 
     Scaffold(
         topBar = {
@@ -108,14 +108,12 @@ fun Payment(
         }
     ) { paddingValues ->
 
-        // Outer column respects scaffold padding
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-
-            // --- SUMMARY BAR (always visible) ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -143,14 +141,14 @@ fun Payment(
                         Row {
                             Text("Pending: ", fontSize = 12.sp, color = Color.Gray)
                             Text(
-                                "Rs ${"%.2f".format(pendingTotal)}",
+                                "Rs ${"%.2f".format(pendingpayment)}",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Paid: ", fontSize = 12.sp, color = Color.Gray)
                             Text(
-                                "Rs ${"%.2f".format(paidTotal)}",
+                                "Rs ${"%.2f".format(paid)}",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF2E7D32)
@@ -160,7 +158,6 @@ fun Payment(
                 }
             }
 
-            // --- Empty state or list ---
             if (details.isEmpty()) {
                 Box(
                     modifier = Modifier
@@ -173,7 +170,6 @@ fun Payment(
                 return@Column
             }
 
-            // --- List of items (scrollable) ---
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -214,7 +210,6 @@ fun ItemCard3(
     ) {
         Box(modifier = Modifier.fillMaxWidth()) {
 
-            // status badge top-right
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
@@ -253,17 +248,17 @@ fun ItemCard3(
                         color = MaterialTheme.colorScheme.primary
                     )
                     if (IsAdminView && !statusIsPaid) {
-                         if (isProcessing) {
-                             Text(text = "Processing", fontSize = 12.sp, color = Color.Gray)
+                        if (isProcessing) {
+                            Text(text = "Processing", fontSize = 12.sp, color = Color.Gray)
 
-                         } else {
-                        IconButton(onClick = { showConfirm = true }) {
-                            Icon(
-                                imageVector = Icons.Filled.CheckCircle,
-                                contentDescription = null,
-                                tint = Color(0xFF2E7D32)
-                            )
-                        }
+                        } else {
+                            IconButton(onClick = { showConfirm = true }) {
+                                Icon(
+                                    imageVector = Icons.Filled.CheckCircle,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
                         }
                     }
 

@@ -38,7 +38,7 @@ data class SignUp(
 )
 
 data class Users(
-    val uid: String="",
+    val uid: String = "",
     val displayName: String = "",
     val email: String = "",
 )
@@ -49,3 +49,9 @@ data class AdLogin(
     val role: String = "",
 
     )
+
+enum class UserRole {
+    ADMIN,
+    USER,
+    NONE
+}

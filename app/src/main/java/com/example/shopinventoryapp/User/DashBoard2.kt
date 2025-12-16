@@ -268,7 +268,7 @@ fun BuyItems(
                 expanded = isExpended,
                 onDismissRequest = { isExpended = false }
             ) {
-                list.forEach { item ->
+                list.filter { it.currentStock > 0 }.forEach { item ->
                     DropdownMenuItem(
                         text = { Text(text = item.name) },
                         onClick = {
@@ -310,7 +310,6 @@ fun BuyItems(
                 itemToSell == null -> errorMsg = "Please select an item"
                 qty <= 0 -> errorMsg = "Enter a valid quantity"
                 qty > itemToSell.currentStock -> errorMsg = "Out of Stock"
-
 
 
                 else -> {

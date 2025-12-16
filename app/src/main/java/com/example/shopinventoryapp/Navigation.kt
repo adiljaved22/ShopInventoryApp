@@ -20,12 +20,12 @@ import com.example.shopinventoryapp.User.UserSignUp
 import com.example.shopinventoryapp.User.ViewItemsForBuyers
 
 @Composable
-fun Navigation(sessionManager: SessionManager) {
+fun Navigation(startDestination: String) {
 
     val navController = rememberNavController()
 
 
-    NavHost(navController = navController, startDestination = "AdminAurUser") {
+    NavHost(navController = navController, startDestination = startDestination) {
 
 
         composable("AdminAurUser") {
@@ -36,7 +36,7 @@ fun Navigation(sessionManager: SessionManager) {
                         launchSingleTop = true
                     }
                 }, NavigateToDashBoard2 = {
-                    navController.navigate("DashBoard2") {
+                    navController.navigate("UserLogin") {
                         popUpTo("AdminAurUser") { inclusive = true }
                         launchSingleTop = true
                     }
@@ -46,28 +46,13 @@ fun Navigation(sessionManager: SessionManager) {
         composable("Login") {
             Login(
                 navcontroller = navController, viewModel = viewModel(),
-               /* NavigateToDashBoard1 = {
 
-*//*
-                    sessionManager.saveLogin()*//*
-
-                    navController.navigate("DashBoard1") {
-                        popUpTo(0) { inclusive = true }
-                        launchSingleTop = true
-                    }
-                }*/)
+                )
         }
         composable("UserLogin") {
             UserLogin(
-                navcontroller = navController, NavigateToDashBoard2 = {
-                    sessionManager.saveLogin()
-                    navController.navigate("DashBoard2") {
-                        popUpTo(0) {
-                            inclusive = true
-                        }
-                        launchSingleTop = true
-                    }
-                })
+                navController = navController,
+            )
         }
         composable("UserSignUp") {
             UserSignUp(
@@ -79,10 +64,14 @@ fun Navigation(sessionManager: SessionManager) {
 
         composable("DashBoard1") {
             DashBoard1(Logout = {
-                sessionManager.logout()
+                SessionManager(navController.context).logout()
 
                 navController.navigate("AdminAurUser") {
-                    popUpTo(0) { inclusive = true }
+                    popUpTo("DashBoard1") {
+                        inclusive = true
+
+                    }
+                    launchSingleTop = true
                 }
             }, NavigateToAddItem = {
                 navController.navigate("AddItem") {
@@ -117,10 +106,10 @@ fun Navigation(sessionManager: SessionManager) {
 
             DashBoard2(
                 Logout2 = {
-                    sessionManager.logout()
+                    SessionManager(navController.context).logout()
                     navController.navigate("AdminAurUser") {
-                        popUpTo(0) { inclusive = true }
-
+                        popUpTo("DashBoard2") { inclusive = true }
+                        launchSingleTop = true
                     }
                 }, NavigateToViewItem = {
                     navController.navigate("ViewItemsForBuyers") {

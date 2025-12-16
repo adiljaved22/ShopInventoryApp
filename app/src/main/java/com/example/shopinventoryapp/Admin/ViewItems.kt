@@ -142,6 +142,7 @@ fun EditItemDialog(
     var name by remember { mutableStateOf(item.name) }
     var price by remember { mutableStateOf(item.unitPrice.toString()) }
     var quantity by remember { mutableStateOf(item.currentStock.toString()) }
+    var salesPrice by remember { mutableStateOf(item.salesPrice.toString()) }
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -170,6 +171,13 @@ fun EditItemDialog(
                     label = { Text("Quantity") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
+                OutlinedTextField(
+                    value = salesPrice,
+                    onValueChange = { salesPrice = it },
+                    label = { Text("Price") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+
 
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
@@ -181,7 +189,8 @@ fun EditItemDialog(
                         val updatedItem = item.copy(
                             name = name,
                             unitPrice = price.toDoubleOrNull() ?: 0.0,
-                            currentStock = quantity.toIntOrNull() ?: 0
+                            currentStock = quantity.toIntOrNull() ?: 0,
+                            salesPrice = salesPrice.toDoubleOrNull()?:0.0
                         )
                         onSave(updatedItem)
                     }) {

@@ -41,6 +41,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shopinventoryapp.AppViewModel
 import com.example.shopinventoryapp.R
 import com.example.shopinventoryapp.SessionManager
+import kotlinx.coroutines.flow.compose
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,7 +57,7 @@ fun DashBoard1(
     LaunchedEffect(Unit) {
         viewModel.loadAdminBuyerDetails()
     }
-  val totalSales by viewModel.adminTotalSales.collectAsState()
+    val totalSales by viewModel.adminTotalSales.collectAsState()
     val totalProfit by viewModel.adminTotalProfit.collectAsState()
     val context = LocalContext.current
     val sessionManager = SessionManager(context)

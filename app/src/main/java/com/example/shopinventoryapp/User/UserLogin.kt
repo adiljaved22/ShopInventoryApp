@@ -1,7 +1,9 @@
 package com.example.shopinventoryapp.User
 
 import android.util.Log
+import android.util.Patterns
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,16 +14,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,11 +45,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Unspecified
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.shopinventoryapp.R
 import com.example.shopinventoryapp.SessionManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -46,181 +60,201 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 
 @Composable
-fun UserLogin(navcontroller: NavController, NavigateToDashBoard2: () -> Unit) {
+@OptIn(ExperimentalMaterial3Api::class)
+fun UserLogin(
+    navController: NavController,
+
+    ) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
-
-    LaunchedEffect(Unit) {
-        if (sessionManager.isLoggedIn()) {
-            Log.e("loginscreen", "${sessionManager.isLoggedIn()}")
-            navcontroller.navigate("DashBoard2") {
-                popUpTo(0) { inclusive = true }
-                launchSingleTop = true
-            }
-        }
-    }
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Login", fontWeight = FontWeight.Bold)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Shop Inventory",
+                        fontWeight = FontWeight.Medium
+                    )
+                },
+                actions = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colorResource(id = R.color.teal_700),
+                    titleContentColor = Color.White
+                )
+            )
+        }
+    ) { paddingValues ->
 
-        OutlinedTextField(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            value = email,
-            onValueChange = { email = it },
-            label = {
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFF7F7F7))
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
                 Text(
-                    text = emailError.ifEmpty { "Email" },
-                    color = if (emailError.isNotEmpty()) Red else Unspecified
+                    text = "Welcome back",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold
                 )
-            },
-            leadingIcon = { Icon(imageVector = Icons.Filled.Email, contentDescription = "") }
-        )
 
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = {
                 Text(
-                    text = passwordError.ifEmpty { "Password" },
-                    color = if (passwordError.isNotEmpty()) Red else Unspecified
+                    text = "Sign in to continue",
+                    color = Color.Gray,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 32.dp)
                 )
-            },
-            leadingIcon = { Icon(imageVector = Icons.Filled.Lock, contentDescription = "") },
-            visualTransformation =
-                if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation('*'),
-            trailingIcon = {
-                val visibilityIcon =
-                    if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = visibilityIcon, contentDescription = null)
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
 
-        Spacer(modifier = Modifier.height(16.dp))
+                // Email
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    label = { Text("Email") },
+                    leadingIcon = {
+                        Icon(Icons.Filled.Email, contentDescription = null)
+                    }
+                )
 
-        Button(onClick = {
-            emailError = when {
-                email.isBlank() -> "Email is required"
-                !isValidEmail(email) -> "Invalid Email"
-                else -> ""
-            }
-            passwordError = when {
-                password.isBlank() -> "Password is required"
-                password.length < 6 -> "Password must be at least 6 characters"
-                else -> ""
-            }
-            if (emailError.isNotEmpty() || passwordError.isNotEmpty()) return@Button
+                Spacer(modifier = Modifier.height(14.dp))
 
-            Firebase.auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val uid = FirebaseAuth.getInstance().currentUser?.uid
-                            ?: return@addOnCompleteListener
-                        val db = FirebaseFirestore.getInstance()
+                // Password
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    label = { Text("Password") },
+                    leadingIcon = {
+                        Icon(Icons.Filled.Lock, contentDescription = null)
+                    },
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = if (passwordVisible)
+                                    Icons.Filled.Visibility
+                                else
+                                    Icons.Filled.VisibilityOff,
+                                contentDescription = null
+                            )
+                        }
+                    },
+                    visualTransformation =
+                        if (passwordVisible)
+                            VisualTransformation.None
+                        else
+                            PasswordVisualTransformation()
+                )
 
-                        // check users collection for role
-                        db.collection("users").document(uid).get()
-                            .addOnSuccessListener { userDoc ->
-                                if (userDoc.exists()) {
-                                    val role = userDoc.getString("role") ?: "user"
-                                    if (role == "user") {
-                                        sessionManager.saveLogin()
-                                        Toast.makeText(
-                                            context,
-                                            "User Login Successful",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                        navcontroller.navigate("DashBoard2") {
-                                            popUpTo(0)
-                                            launchSingleTop = true
-                                        }
-                                    } else {
-                                        FirebaseAuth.getInstance().signOut()
-                                        Toast.makeText(
-                                            context,
-                                            "Not authorized as user",
-                                            Toast.LENGTH_LONG
-                                        ).show()
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Login Button
+                Button(
+                    onClick = {
+                        emailError = when {
+                            email.isBlank() -> "Email is required"
+                            !isValidEmail(email) -> "Invalid email"
+                            else -> ""
+                        }
+                        passwordError = when {
+                            password.isBlank() -> "Password is required"
+                            password.length < 6 -> "Password must be at least 6 characters"
+                            else -> ""
+                        }
+                        if (emailError.isNotEmpty() || passwordError.isNotEmpty()) return@Button
+
+                        isLoading = true
+                        Firebase.auth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener { task ->
+                                isLoading = false
+                                if (task.isSuccessful) {
+                                    sessionManager.saveUserLogin()
+                                    navController.navigate("DashBoard2") {
+                                        popUpTo(0)
+                                        launchSingleTop = true
                                     }
                                 } else {
-                                    // fallback: if user exists only in Admin collection treat as admin and block user entry
-                                    db.collection("Admin").document(uid).get()
-                                        .addOnSuccessListener { adminDoc ->
-                                            if (adminDoc.exists()) {
-                                                FirebaseAuth.getInstance().signOut()
-                                                Toast.makeText(
-                                                    context,
-                                                    "This account is an Admin; use admin login",
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-                                            } else {
-                                                FirebaseAuth.getInstance().signOut()
-                                                Toast.makeText(
-                                                    context,
-                                                    "Account not registered. Contact support.",
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-                                            }
-                                        }
-                                        .addOnFailureListener { e ->
-                                            FirebaseAuth.getInstance().signOut()
-                                            Toast.makeText(
-                                                context,
-                                                "Role check failed: ${e.message}",
-                                                Toast.LENGTH_LONG
-                                            ).show()
-                                        }
+                                    Toast.makeText(
+                                        context,
+                                        "Login failed",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
-                            .addOnFailureListener { e ->
-                                FirebaseAuth.getInstance().signOut()
-                                Toast.makeText(
-                                    context,
-                                    "Role check failed: ${e.message}",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                    } else {
-                        Toast.makeText(
-                            context,
-                            "Login Failed: ${task.exception?.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    }   ,
+                    enabled = !isLoading,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = "Login",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // ✅ SIGNUP ROW (NOW FIXED)
+                Row {
+                    Text("Don’t have an account? ")
+                    Text(
+                        text = "Sign up",
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable {
+                            navController.navigate("UserSignUp")
+                        }
+                    )
+                }
+            }
+
+            // ✅ LOADING OVERLAY
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(color = Color.White)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Please wait...", color = Color.White)
                     }
                 }
-        }) {
-            Text("Login")
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Row {
-                Text("Not a member?")
-                Text(
-                    "SignUp",
-                    color = Color.Blue,
-                    modifier = Modifier.clickable { navcontroller.navigate("UserSignUp") })
             }
         }
     }
 }
 
 fun isValidEmail(email: String): Boolean {
-    return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    return Patterns.EMAIL_ADDRESS.matcher(email).matches()
 }

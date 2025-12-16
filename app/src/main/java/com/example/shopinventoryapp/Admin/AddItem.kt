@@ -162,6 +162,22 @@ fun AddItem(
             Button(
                 onClick = {
                     if (itemName.isNotEmpty() && purchaseAmount.isNotEmpty() && quantity.isNotEmpty() && salesPrice.isNotEmpty() && date.isNotEmpty() && unitPrice.isNotEmpty()) {
+                        if (salesPrice <= 0.toString()) {
+                            Toast.makeText(
+                                context,
+                                "Sales Price can't be negative",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@Button
+                        }
+                        if (salesPrice < unitPrice) {
+                            Toast.makeText(
+                                context,
+                                "Sales price must be greater than unit price",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@Button
+                        }
                         viewModel.addItems(
                             Items(
                                 date = date,

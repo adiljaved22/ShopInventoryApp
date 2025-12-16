@@ -1,6 +1,8 @@
 package com.example.shopinventoryapp
 
 import android.widget.Toast
+import androidx.compose.runtime.State
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
@@ -27,7 +29,13 @@ class AppViewModel : ViewModel() {
 
     private val _adminTotalProfit = MutableStateFlow(0.0)
     val adminTotalProfit: StateFlow<Double> = _adminTotalProfit
+    private val _userPendingPayment = MutableStateFlow(0.0)
+    val userPendingPayment: StateFlow<Double> = _userPendingPayment
+    private val _userGrandTotal = MutableStateFlow(0.0)
+    val userGrandTotal: StateFlow<Double> = _userGrandTotal
 
+    private val _paidTotal = MutableStateFlow(0.0)
+    val paidTotal: StateFlow<Double> = _paidTotal
     fun loadAdminBuyerDetails() {
         val db = FirebaseFirestore.getInstance()
 
@@ -37,7 +45,7 @@ class AppViewModel : ViewModel() {
                     val list = snapshot.toObjects(BuyerDetails::class.java)
                     _buyerDetails.value = list
 
-                 
+
                     var totalSales = 0.0
                     var totalProfit = 0.0
 
@@ -51,6 +59,31 @@ class AppViewModel : ViewModel() {
                 }
             }
     }
+
+    fun loadingPayment(uid: String?) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("buyerDetails").whereEqualTo("buyerUid",uid)
+            .addSnapshotListener { snapshot, _ ->
+                if (snapshot != null) {
+                    val list = snapshot.toObjects(BuyerDetails::class.java)
+                    _buyerDetails.value = list
+                    var pendingPayment = 0.0
+                    var paidPayment = 0.0
+                    var grandTotal = 0.0
+                    list.forEach { _ ->
+                        grandTotal = list.sumOf { it.totalprice }
+                        paidPayment = list.filter { it.status == true }.sumOf { it.totalprice }
+                        pendingPayment = grandTotal - paidPayment
+                    }
+
+                    _userGrandTotal.value = grandTotal
+                    _paidTotal.value = paidPayment
+                    _userPendingPayment.value = pendingPayment
+                }
+
+            }
+    }
+
     private val _message = MutableStateFlow("")
     val message: StateFlow<String> = _message
     private val _users = MutableStateFlow<Users?>(null)
