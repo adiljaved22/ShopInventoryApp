@@ -43,7 +43,7 @@ fun AdminAurUser(
     Scaffold(
         topBar = {
             TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
+             colors = TopAppBarDefaults.topAppBarColors(
                     titleContentColor = Color.White,
                     containerColor = colorResource(id = R.color.teal_700),
                 ),
@@ -63,7 +63,7 @@ fun AdminAurUser(
             Text(
                 "Continue as", fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black,
+
                 lineHeight = 36.sp
             )
             Spacer(modifier = Modifier.height(35.dp))

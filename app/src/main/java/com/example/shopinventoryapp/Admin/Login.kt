@@ -5,7 +5,9 @@ import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
@@ -13,13 +15,16 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
@@ -47,6 +52,7 @@ import com.google.firebase.ktx.Firebase
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Login(navcontroller: NavController, viewModel: AppViewModel) {
+
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
     var isLoading by remember { mutableStateOf(false) }
@@ -62,9 +68,11 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    titleContentColor = Color.White,
-                    containerColor = colorResource(id = R.color.teal_700),
-                ),
+                    titleContentColor = MaterialTheme.colorScheme.onSecondary,
+                    containerColor = MaterialTheme.colorScheme.secondary,
+
+
+                    ),
                 title = { Text("Shop Inventory", fontWeight = FontWeight.Medium) },
 
                 actions = {
@@ -72,34 +80,42 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.White
+                            tint =  MaterialTheme.colorScheme.onSecondary
                         )
 
                     }
                 }
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
 
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF7F7F7))
+                .verticalScroll(rememberScrollState())
+                .imePadding()
+                .background(MaterialTheme.colorScheme.background)
+
                 .padding(16.dp)
                 .padding(paddingValues),
-            verticalArrangement = Arrangement.Center,
+
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(220.dp))
+
             Text(
                 text = "Welcome back",
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
-            )
+                fontWeight = FontWeight.Bold,
+
+                )
 
             Text(
                 text = "Sign in to continue",
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp, bottom = 32.dp)
             )
 
@@ -109,10 +125,12 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
                     .padding(top = 8.dp),
                 value = email,
                 onValueChange = { email = it },
+
                 label = {
                     Text(
                         text = emailError.ifEmpty { "Email" },
-                        color = if (emailError.isNotEmpty()) Red else Unspecified
+                        color = if (emailError.isNotEmpty())
+                            MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 singleLine = true,
@@ -122,16 +140,18 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
                         imageVector = Icons.Filled.Email,
                         contentDescription = ""
                     )
-                }
+                },
+
             )
 
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
+
                 label = {
                     Text(
                         text = passwordError.ifEmpty { "Password" },
-                        color = if (passwordError.isNotEmpty()) Red else Unspecified
+                        color = if (passwordError.isNotEmpty()) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.error
                     )
                 },
                 singleLine = true,
@@ -159,6 +179,7 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
+
                 onClick = {
                     emailError = when {
                         email.isBlank() -> "Email is required"
@@ -256,6 +277,10 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
                         }
 
                 },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
                 enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -264,9 +289,10 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
             ) {
                 Text("Login")
             }
+
+
+            Spacer(modifier = Modifier.height(120.dp))
         }
-
-
         if (isLoading) {
             Box(
                 modifier = Modifier
@@ -276,8 +302,9 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(50.dp),
-                        color = Color.White,
+
                         strokeWidth = 5.dp
                     )
                     Spacer(modifier = Modifier.height(16.dp))
@@ -286,8 +313,8 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
             }
         }
 
-    }
 
+    }
 }
 
 fun isValidEmail(email: String): Boolean {

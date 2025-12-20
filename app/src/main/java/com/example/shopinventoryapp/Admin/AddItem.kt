@@ -162,15 +162,28 @@ fun AddItem(
             Button(
                 onClick = {
                     if (itemName.isNotEmpty() && purchaseAmount.isNotEmpty() && quantity.isNotEmpty() && salesPrice.isNotEmpty() && date.isNotEmpty() && unitPrice.isNotEmpty()) {
-                        if (salesPrice <= 0.toString()) {
+                        val sales = salesPrice.toDoubleOrNull()
+                        val unit = unitPrice.toDoubleOrNull()
+
+                        if (sales == null || unit == null) {
                             Toast.makeText(
                                 context,
-                                "Sales Price can't be negative",
+                                "Invalid price entered",
                                 Toast.LENGTH_SHORT
                             ).show()
                             return@Button
                         }
-                        if (salesPrice < unitPrice) {
+
+                        if (sales <= 0) {
+                            Toast.makeText(
+                                context,
+                                "Sales price must be greater than 0",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@Button
+                        }
+
+                        if (sales <= unit) {
                             Toast.makeText(
                                 context,
                                 "Sales price must be greater than unit price",

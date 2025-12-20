@@ -26,56 +26,58 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            ShopInventoryAppTheme {
-                val context = LocalContext.current
+            MyAppTheme {
+                ShopInventoryAppTheme {
+                    val context = LocalContext.current
 
-                var isConnected by remember { mutableStateOf(true) }
-                var isAppReady by remember { mutableStateOf(false) }
-
-
-                splashScreen.setKeepOnScreenCondition {
-                    !isAppReady
-                }
+                    var isConnected by remember { mutableStateOf(true) }
+                    var isAppReady by remember { mutableStateOf(false) }
 
 
-                LaunchedEffect(Unit) {
-                    observeInternet(context).collect { connected ->
-                        isConnected = connected
+                    splashScreen.setKeepOnScreenCondition {
+                        !isAppReady
+                    }
 
-                        if (connected) {
-                            isAppReady = true
-                        } else {
-                            isAppReady = false
+
+                    LaunchedEffect(Unit) {
+                        observeInternet(context).collect { connected ->
+                            isConnected = connected
+
+                            if (connected) {
+                                isAppReady = true
+                            } else {
+                                isAppReady = false
+                            }
                         }
                     }
-                }
 
 
-                if (!isConnected) {
-                    InfoDialog(
-                        title = "Ah!!!\nNo Internet",
-                        desc = "Please check your internet connection",
-                        onDismiss = {}
-                    )
-                }
-
-
-                if (isAppReady) {
-                    val sessionManager = remember { SessionManager(context) }
-
-                    val startDestination = when {
-                        sessionManager.isLoggedIn() && sessionManager.getUserRole() == UserRole.ADMIN ->
-                            "DashBoard1"
-
-                        sessionManager.isLoggedIn() && sessionManager.getUserRole() == UserRole.USER ->
-                            "DashBoard2"
-
-                        else ->
-                            "AdminAurUser"
+                    if (!isConnected) {
+                        InfoDialog(
+                            title = "Ah!!!\nNo Internet",
+                            desc = "Please check your internet connection",
+                            onDismiss = {}
+                        )
                     }
 
-                    Surface(color = MaterialTheme.colorScheme.background) {
-                        Navigation(startDestination)
+
+                    if (isAppReady) {
+                        val sessionManager = remember { SessionManager(context) }
+
+                        val startDestination = when {
+                            sessionManager.isLoggedIn() && sessionManager.getUserRole() == UserRole.ADMIN ->
+                                "DashBoard1"
+
+                            sessionManager.isLoggedIn() && sessionManager.getUserRole() == UserRole.USER ->
+                                "DashBoard2"
+
+                            else ->
+                                "AdminAurUser"
+                        }
+
+                        Surface(color = MaterialTheme.colorScheme.background) {
+                            Navigation(startDestination)
+                        }
                     }
                 }
             }
