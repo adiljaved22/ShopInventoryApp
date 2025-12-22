@@ -1,40 +1,25 @@
 package com.example.shopinventoryapp.Admin
 
+import com.example.shopinventoryapp.R
 import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Red
-import androidx.compose.ui.graphics.Color.Companion.Unspecified
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -42,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.shopinventoryapp.AppViewModel
-import com.example.shopinventoryapp.R
 import com.example.shopinventoryapp.SessionManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -55,9 +39,8 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
 
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
+
     var isLoading by remember { mutableStateOf(false) }
-
-
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -65,29 +48,32 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
     var passwordError by remember { mutableStateOf("") }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    titleContentColor = MaterialTheme.colorScheme.onSecondary,
-                    containerColor = MaterialTheme.colorScheme.secondary,
-
-
-                    ),
-                title = { Text("Shop Inventory", fontWeight = FontWeight.Medium) },
-
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                title = {
+                    Text(
+                        text = "Shop Inventory",
+                        fontWeight = FontWeight.Medium
+                    )
+                },
                 actions = {
                     IconButton(onClick = { navcontroller.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint =  MaterialTheme.colorScheme.onSecondary
+                            contentDescription = "Back"
                         )
-
                     }
                 }
             )
-        },
-        containerColor = MaterialTheme.colorScheme.background
+        }
     ) { paddingValues ->
 
 
@@ -95,23 +81,31 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .padding(paddingValues)
                 .imePadding()
-                .background(MaterialTheme.colorScheme.background)
-
-                .padding(16.dp)
-                .padding(paddingValues),
-
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(220.dp))
+
+
+            Image(
+                painterResource(id = R.drawable.loginlogo),
+                contentDescription = "Login_logo",
+                modifier = Modifier
+                    .size(width = 321.dp, height = 251.dp)
+                    .offset(x = 74.dp, y = 46.dp),
+                contentScale = ContentScale.Fit,
+                alpha = 1f
+            )
+
+
 
             Text(
                 text = "Welcome back",
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-
-                )
+                fontWeight = FontWeight.Bold
+            )
 
             Text(
                 text = "Sign in to continue",
@@ -120,17 +114,13 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
             )
 
             OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
                 value = email,
                 onValueChange = { email = it },
-
                 label = {
                     Text(
                         text = emailError.ifEmpty { "Email" },
-                        color = if (emailError.isNotEmpty())
-                            MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (emailError.isNotEmpty()) MaterialTheme.colorScheme.error
+                        else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 singleLine = true,
@@ -138,48 +128,47 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Email,
-                        contentDescription = ""
+                        contentDescription = null
                     )
                 },
 
+                modifier = Modifier.fillMaxWidth()
             )
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // PASSWORD FIELD
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
                 label = {
                     Text(
                         text = passwordError.ifEmpty { "Password" },
-                        color = if (passwordError.isNotEmpty()) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.error
+                        color = if (passwordError.isNotEmpty()) MaterialTheme.colorScheme.error
+                        else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.Lock,
-                        contentDescription = ""
-                    )
-                },
-                visualTransformation =
-                    if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(
-                        '*'
-                    ),
+                leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
                 trailingIcon = {
-                    val visibilityIcon =
-                        if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector = visibilityIcon, contentDescription = null)
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Filled.Visibility
+                            else Icons.Filled.VisibilityOff,
+                            contentDescription = null
+                        )
                     }
                 },
+                visualTransformation = if (passwordVisible) VisualTransformation.None
+                else PasswordVisualTransformation('*'),
+
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-
                 onClick = {
                     emailError = when {
                         email.isBlank() -> "Email is required"
@@ -188,7 +177,7 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
                     }
                     passwordError = when {
                         password.isBlank() -> "Password is required"
-                        password.length < 6 -> "Password must be at least 8 characters"
+                        password.length < 6 -> "Password must be at least 6 characters"
                         else -> ""
                     }
 
@@ -196,6 +185,7 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
 
                     isLoading = true
 
+                    // FIREBASE LOGIN
                     Firebase.auth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener { task ->
                             isLoading = false
@@ -206,82 +196,47 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
 
                                 db.collection("users").document(uid).get()
                                     .addOnSuccessListener { userDoc ->
-                                        if (userDoc.exists()) {
-                                            val role = userDoc.getString("role") ?: "user"
-                                            if (role == "Admin") {
-                                                sessionManager.saveAdminLogin()
-                                                navcontroller.navigate("DashBoard1") {
-                                                    popUpTo(0)
-                                                    launchSingleTop = true
-                                                }
-                                                Toast.makeText(
-                                                    context,
-                                                    "Admin Login Successful",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            } else {
-                                                FirebaseAuth.getInstance().signOut()
-                                                Toast.makeText(
-                                                    context,
-                                                    "Not authorized as admin",
-                                                    Toast.LENGTH_LONG
-                                                ).show()
+                                        if (userDoc.exists() && userDoc.getString("role") == "Admin") {
+                                            sessionManager.saveAdminLogin()
+                                            navcontroller.navigate("DashBoard1") {
+                                                popUpTo(0)
+                                                launchSingleTop = true
                                             }
+                                            Toast.makeText(
+                                                context,
+                                                "Admin Login Successful",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         } else {
-                                            db.collection("Admin").document(uid).get()
-                                                .addOnSuccessListener { adminDoc ->
-                                                    if (adminDoc.exists()) {
-                                                        sessionManager.saveAdminLogin()
-                                                        navcontroller.navigate("DashBoard1") {
-                                                            popUpTo(0)
-                                                            launchSingleTop = true
-                                                        }
-                                                        Toast.makeText(
-                                                            context,
-                                                            "Admin Login Successful",
-                                                            Toast.LENGTH_SHORT
-                                                        ).show()
-                                                    } else {
-                                                        FirebaseAuth.getInstance().signOut()
-                                                        Toast.makeText(
-                                                            context,
-                                                            "Account not registered. Contact support.",
-                                                            Toast.LENGTH_LONG
-                                                        ).show()
-                                                    }
-                                                }
-                                                .addOnFailureListener { e ->
-                                                    FirebaseAuth.getInstance().signOut()
-                                                    Toast.makeText(
-                                                        context,
-                                                        "Role check failed: ${e.message}",
-                                                        Toast.LENGTH_LONG
-                                                    ).show()
-                                                }
+                                            FirebaseAuth.getInstance().signOut()
+                                            Toast.makeText(
+                                                context,
+                                                "Not authorized as admin",
+                                                Toast.LENGTH_LONG
+                                            ).show()
                                         }
                                     }
                                     .addOnFailureListener { e ->
                                         FirebaseAuth.getInstance().signOut()
                                         Toast.makeText(
                                             context,
-                                            "Role check failed: ${e.message}",
+                                            "Login failed: ${e.message}",
                                             Toast.LENGTH_LONG
                                         ).show()
                                     }
-
                             } else {
-                                Log.e("LOGIN", "Login Failed: ${task.exception?.message}")
-                                Toast.makeText(context, "Login Failed", Toast.LENGTH_SHORT)
-                                    .show()
+                                Toast.makeText(
+                                    context,
+                                    "Login Failed: ${task.exception?.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
-
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
-                enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -289,33 +244,29 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
             ) {
                 Text("Login")
             }
-
-
-            Spacer(modifier = Modifier.height(120.dp))
         }
+
+        // LOADING OVERLAY
         if (isLoading) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.3f)),
+                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.35f)),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(50.dp),
-
                         strokeWidth = 5.dp
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("Please wait...", color = Color.White)
+                    Text("Please wait...", color = MaterialTheme.colorScheme.onSurface)
                 }
             }
         }
-
-
     }
 }
+
 
 fun isValidEmail(email: String): Boolean {
     return Patterns.EMAIL_ADDRESS.matcher(email).matches()

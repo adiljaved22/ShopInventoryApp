@@ -26,8 +26,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            MyAppTheme {
-                ShopInventoryAppTheme {
+            MyAppTheme() {
+
                     val context = LocalContext.current
 
                     var isConnected by remember { mutableStateOf(true) }
@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
 
 
                     splashScreen.setKeepOnScreenCondition {
-                        !isAppReady
+                           !isAppReady
                     }
 
 
@@ -79,7 +79,6 @@ class MainActivity : ComponentActivity() {
                             Navigation(startDestination)
                         }
                     }
-                }
             }
         }
     }

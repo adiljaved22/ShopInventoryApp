@@ -1,6 +1,7 @@
 package com.example.shopinventoryapp.User
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,8 +12,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
@@ -21,6 +27,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,8 +47,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.Color.Companion.Unspecified
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -74,8 +83,10 @@ fun UserSignUp(
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    titleContentColor = Color.White,
-                    containerColor = colorResource(id = R.color.teal_700),
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
                 ),
                 title = { Text("Shop Inventory", fontWeight = FontWeight.Medium) },
 
@@ -92,16 +103,29 @@ fun UserSignUp(
             )
         }
     ) { paddingValues ->
+
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF7F7F7))
+                .verticalScroll(rememberScrollState())
+                .padding(paddingValues)
+                .imePadding()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
 
-                .padding(16.dp)
-                .padding(paddingValues),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+            ) {
+            Spacer(modifier = Modifier.height(40.dp))
+            Image(
+                painterResource(id = R.drawable.signuplogo),
+                contentDescription = "Login_logo",
+                modifier = Modifier
+                    .size(width = 321.dp, height = 251.dp)
+                    .offset(x = 75.dp, y = 42.dp),
+                contentScale = ContentScale.Fit,
+                alpha = 1f
+            )
+            Spacer(modifier = Modifier.height(40.dp))
 
             Text(
                 text = "Create account",
@@ -129,7 +153,12 @@ fun UserSignUp(
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
-                leadingIcon = { Icon(imageVector = Icons.Filled.Email, contentDescription = "") }
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Email,
+                        contentDescription = ""
+                    )
+                }
             )
             OutlinedTextField(
                 modifier = Modifier
@@ -140,12 +169,18 @@ fun UserSignUp(
                 label = {
                     Text(
                         text = displayNameError.ifEmpty { "Username" },
-                        color = if (displayNameError.isNotEmpty()) Red else Unspecified
+                        color = if (displayNameError.isNotEmpty()) MaterialTheme.colorScheme.error
+                        else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
-                leadingIcon = { Icon(imageVector = Icons.Filled.Person, contentDescription = "") }
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Person,
+                        contentDescription = ""
+                    )
+                }
             )
 
             OutlinedTextField(
@@ -154,13 +189,19 @@ fun UserSignUp(
                 label = {
                     Text(
                         text = passwordError.ifEmpty { "Password" },
-                        color = if (passwordError.isNotEmpty()) Red else Unspecified
+                        color = if (passwordError.isNotEmpty()) MaterialTheme.colorScheme.error
+                        else MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
-                leadingIcon = { Icon(imageVector = Icons.Filled.Lock, contentDescription = "") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Lock,
+                        contentDescription = ""
+                    )
+                },
 
                 visualTransformation =
                     if (passwordVisible) {
@@ -212,15 +253,24 @@ fun UserSignUp(
                                 println("DisplayName , ${displayName},Email,${email},uid,${uid}")
                                 viewModel.UserSignUp(displayName, email, "user", uid)
                                 NavigateToUserLogin()
-                                Toast.makeText(context, "Sign Up Successful", Toast.LENGTH_SHORT)
+                                Toast.makeText(
+                                    context,
+                                    "Sign Up Successful",
+                                    Toast.LENGTH_SHORT
+                                )
                                     .show()
 
                             } else {
-                                Toast.makeText(context, "Sign Up Failed", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Sign Up Failed", Toast.LENGTH_SHORT)
+                                    .show()
                             }
                         }
 
                 },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -245,6 +295,7 @@ fun UserSignUp(
                 }
             }
         }
+
 
     }
 }

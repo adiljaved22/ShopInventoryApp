@@ -45,7 +45,8 @@ fun Navigation(startDestination: String) {
         }
         composable("Login") {
             Login(
-                navcontroller = navController, viewModel = viewModel(),
+                navcontroller = navController,
+                viewModel = viewModel()
 
                 )
         }
