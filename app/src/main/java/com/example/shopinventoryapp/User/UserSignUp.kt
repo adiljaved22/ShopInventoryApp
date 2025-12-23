@@ -113,29 +113,22 @@ fun UserSignUp(
                 .imePadding()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
 
-            ) {
-            Spacer(modifier = Modifier.height(40.dp))
-            Image(
-                painterResource(id = R.drawable.signuplogo),
-                contentDescription = "Login_logo",
-                modifier = Modifier
-                    .size(width = 321.dp, height = 251.dp)
-                    .offset(x = 75.dp, y = 42.dp),
-                contentScale = ContentScale.Fit,
-                alpha = 1f
-            )
+        ) {
+
             Spacer(modifier = Modifier.height(40.dp))
 
             Text(
                 text = "Create account",
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold
             )
 
             Text(
                 text = "Sign up to get started",
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp, bottom = 32.dp)
             )
 

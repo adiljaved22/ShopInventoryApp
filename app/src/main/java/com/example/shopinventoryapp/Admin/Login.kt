@@ -167,7 +167,6 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-
             Button(
                 onClick = {
                     emailError = when {
@@ -177,7 +176,7 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
                     }
                     passwordError = when {
                         password.isBlank() -> "Password is required"
-                        password.length < 6 -> "Password must be at least 6 characters"
+                        password.length < 6 -> "Password must be at least 8 characters"
                         else -> ""
                     }
 
@@ -185,7 +184,6 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
 
                     isLoading = true
 
-                    // FIREBASE LOGIN
                     Firebase.auth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener { task ->
                             isLoading = false
@@ -196,47 +194,82 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
 
                                 db.collection("users").document(uid).get()
                                     .addOnSuccessListener { userDoc ->
-                                        if (userDoc.exists() && userDoc.getString("role") == "Admin") {
-                                            sessionManager.saveAdminLogin()
-                                            navcontroller.navigate("DashBoard1") {
-                                                popUpTo(0)
-                                                launchSingleTop = true
+                                        if (userDoc.exists()) {
+                                            val role = userDoc.getString("role") ?: "user"
+                                            if (role == "Admin") {
+                                                sessionManager.saveAdminLogin()
+                                                navcontroller.navigate("DashBoard1") {
+                                                    popUpTo(0)
+                                                    launchSingleTop = true
+                                                }
+                                                Toast.makeText(
+                                                    context,
+                                                    "Admin Login Successful",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            } else {
+                                                FirebaseAuth.getInstance().signOut()
+                                                Toast.makeText(
+                                                    context,
+                                                    "Not authorized as admin",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
                                             }
-                                            Toast.makeText(
-                                                context,
-                                                "Admin Login Successful",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
                                         } else {
-                                            FirebaseAuth.getInstance().signOut()
-                                            Toast.makeText(
-                                                context,
-                                                "Not authorized as admin",
-                                                Toast.LENGTH_LONG
-                                            ).show()
+                                            db.collection("Admin").document(uid).get()
+                                                .addOnSuccessListener { adminDoc ->
+                                                    if (adminDoc.exists()) {
+                                                        sessionManager.saveAdminLogin()
+                                                        navcontroller.navigate("DashBoard1") {
+                                                            popUpTo(0)
+                                                            launchSingleTop = true
+                                                        }
+                                                        Toast.makeText(
+                                                            context,
+                                                            "Admin Login Successful",
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                    } else {
+                                                        FirebaseAuth.getInstance().signOut()
+                                                        Toast.makeText(
+                                                            context,
+                                                            "Account not registered. Contact support.",
+                                                            Toast.LENGTH_LONG
+                                                        ).show()
+                                                    }
+                                                }
+                                                .addOnFailureListener { e ->
+                                                    FirebaseAuth.getInstance().signOut()
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Role check failed: ${e.message}",
+                                                        Toast.LENGTH_LONG
+                                                    ).show()
+                                                }
                                         }
                                     }
                                     .addOnFailureListener { e ->
                                         FirebaseAuth.getInstance().signOut()
                                         Toast.makeText(
                                             context,
-                                            "Login failed: ${e.message}",
+                                            "Role check failed: ${e.message}",
                                             Toast.LENGTH_LONG
                                         ).show()
                                     }
+
                             } else {
-                                Toast.makeText(
-                                    context,
-                                    "Login Failed: ${task.exception?.message}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Log.e("LOGIN", "Login Failed: ${task.exception?.message}")
+                                Toast.makeText(context, "Login Failed", Toast.LENGTH_SHORT)
+                                    .show()
                             }
                         }
+
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
+                enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -246,7 +279,6 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
             }
         }
 
-        // LOADING OVERLAY
         if (isLoading) {
             Box(
                 modifier = Modifier

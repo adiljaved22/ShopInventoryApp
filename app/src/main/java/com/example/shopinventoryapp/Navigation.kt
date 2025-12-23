@@ -17,7 +17,6 @@ import com.example.shopinventoryapp.User.DashBoard2
 import com.example.shopinventoryapp.User.Payment
 import com.example.shopinventoryapp.User.UserLogin
 import com.example.shopinventoryapp.User.UserSignUp
-import com.example.shopinventoryapp.User.ViewItemsForBuyers
 
 @Composable
 fun Navigation(startDestination: String) {
@@ -184,7 +183,7 @@ fun Navigation(startDestination: String) {
             )
 
         }
-        composable("ViewItemsForBuyers") {
+       /* composable("ViewItemsForBuyers") {
             ViewItemsForBuyers(
                 onBackClick = { navController.popBackStack() },
                 viewModel = viewModel(),
@@ -193,6 +192,6 @@ fun Navigation(startDestination: String) {
                         launchSingleTop = true
                     }
                 })
-        }
+        }*/
     }
 }

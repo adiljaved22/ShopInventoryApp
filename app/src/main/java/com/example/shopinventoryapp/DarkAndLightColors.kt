@@ -89,13 +89,13 @@ val DarkColors = darkColorScheme(
     outline = Color(0xFF374151)
 )
 val LightColors = lightColorScheme(
-    primary = Color(0xFF4F46E5),      // Indigo
+    primary = Color(0xFF4F46E5),
     onPrimary = Color.White,
 
     background = Color(0xFFFAFAFA),
     onBackground = Color(0xFF111827),
 
-    surface = Color.White,
+    surface = Color.Gray,
     onSurface = Color(0xFF1F2937),
 
     surfaceVariant = Color(0xFFF1F5F9),

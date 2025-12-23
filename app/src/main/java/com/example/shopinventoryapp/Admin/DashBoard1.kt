@@ -21,6 +21,7 @@ import androidx.compose.material.icons.rounded.ViewList
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -66,8 +67,10 @@ fun DashBoard1(
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    titleContentColor = Color.White,
-                    containerColor = colorResource(id = R.color.teal_700),
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
                 ),
                 title = {
                     Text(
@@ -84,7 +87,7 @@ fun DashBoard1(
                         Icon(
                             imageVector = Icons.Default.Logout,
                             contentDescription = "Back",
-                            tint = Color.Black
+
                         )
 
                     }
@@ -102,14 +105,18 @@ fun DashBoard1(
         ) {
 
             Text("Total Sales: $totalSales", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            Text("Total Profit: $totalProfit", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = String.format("Total Profit: $ %.2f", totalProfit),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
                 text = "Inventory Management",
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black,
                 lineHeight = 36.sp
             )
 
@@ -161,7 +168,7 @@ fun DashBoard1(
                     modifier = Modifier
                         .size(130.dp)
                         .background(
-                            Color(0xFF008080),
+                            Color(0xFFBEA371),
                             shape = RoundedCornerShape(25.dp)
                         )
                         .clickable { NavigateToUsers() }
@@ -189,7 +196,7 @@ fun DashBoard1(
                 modifier = Modifier
                     .size(130.dp)
                     .background(
-                        Color.Black,
+                        Color(0xFF658FA2),
                         shape = RoundedCornerShape(25.dp)
                     )
                     .clickable { NavigateToViewItem() }

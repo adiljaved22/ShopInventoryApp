@@ -82,16 +82,18 @@ fun Payment(
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    titleContentColor = Color.White,
-                    containerColor = colorResource(id = com.example.shopinventoryapp.R.color.teal_700),
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
                 ),
                 title = {
                     Column {
                         Text("Buyer Details", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                         Text(
                             text = "Welcome, ${users?.displayName?.ifBlank { "User" }}",
-                            fontSize = 12.sp,
-                            color = Color.Gray
+                            fontSize = 14.sp,
+
                         )
                     }
                 },
@@ -100,7 +102,7 @@ fun Payment(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.Black
+
                         )
                     }
                 }
@@ -118,8 +120,9 @@ fun Payment(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .background(Color(0xFFF5F5F5), shape = MaterialTheme.shapes.medium)
                     .padding(horizontal = 16.dp, vertical = 12.dp)
+
+
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),

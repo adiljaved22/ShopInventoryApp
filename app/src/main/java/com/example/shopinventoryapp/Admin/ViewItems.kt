@@ -39,8 +39,10 @@ fun ViewItems(
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    titleContentColor = Color.White,
-                    containerColor = colorResource(id = R.color.teal_700),
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
                 ),
                 title = { Text("Inventory Items") },
 
@@ -49,7 +51,7 @@ fun ViewItems(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.Black
+
                         )
 
                     }

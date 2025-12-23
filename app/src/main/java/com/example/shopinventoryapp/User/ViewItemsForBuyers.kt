@@ -1,3 +1,4 @@
+/*
 package com.example.shopinventoryapp.User
 
 import androidx.compose.foundation.layout.Arrangement
@@ -56,10 +57,12 @@ fun ViewItemsForBuyers(
     Scaffold(
         topBar = {
             TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    titleContentColor = Color.White,
-                    containerColor = colorResource(id = R.color.teal_700),
-                ),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                        actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                    ),
                 title = { Text("Inventory Items") },
 
                 actions = {
@@ -67,7 +70,6 @@ fun ViewItemsForBuyers(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.Black
                         )
 
                     }
@@ -130,3 +132,4 @@ fun ItemCard1(item: Items, viewModel: AppViewModel) {
 
 
 
+*/
