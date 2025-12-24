@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,6 +30,7 @@ import androidx.compose.material.icons.rounded.ViewList
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -61,11 +63,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastCbrt
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.shopinventoryapp.AppViewModel
 import com.example.shopinventoryapp.BuyerDetails
 import com.example.shopinventoryapp.Items
+import com.example.shopinventoryapp.QuantitySelector
 import com.example.shopinventoryapp.R
 import com.example.shopinventoryapp.SessionManager
 import com.example.shopinventoryapp.Users
@@ -81,168 +85,124 @@ fun DashBoard2(
     NavigateToViewItem: () -> Unit,
     NavigateToSellItem: () -> Unit,
     NavigateToPayment: () -> Unit,
-    viewModel: AppViewModel = viewModel(),
+    viewModel: AppViewModel = viewModel()
 ) {
-    val currentUser = FirebaseAuth.getInstance().currentUser?.uid
 
+    val currentUser = FirebaseAuth.getInstance().currentUser?.uid
+    val users by viewModel.user.collectAsState(initial = Users())
+    val items by viewModel.items.collectAsState(initial = emptyList())
+    val context = LocalContext.current
+    val sessionManager = SessionManager(context)
 
     LaunchedEffect(currentUser) {
         currentUser?.let { viewModel.getUsers(it) }
-    }
-
-    val users by viewModel.user.collectAsState(initial = Users())
-
-    val context = LocalContext.current
-    val sessionManager = SessionManager(context)
-    val list by viewModel.items.collectAsState(initial = emptyList())
-
-    LaunchedEffect(Unit) {
         viewModel.displayItems()
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
-                ),
-                title = {
-                    Text(
-                        "Dashboard",
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
+                title = { Text("Dashboard", fontWeight = FontWeight.Bold) },
                 actions = {
                     IconButton(onClick = {
                         Logout2()
                         sessionManager.logout()
                     }) {
-                        Icon(
-                            imageVector = Icons.Default.Logout,
-                            contentDescription = "Logout",
-                        )
+                        Icon(Icons.Default.Logout, contentDescription = "Logout")
                     }
                 }
             )
         }
-    ) { paddingValues ->
+    ) { padding ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(padding)
+                .padding(16.dp)
         ) {
 
-            val displayName = users?.displayName
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
-            Text(
-                text = "Welcome: $displayName", style = TextStyle(
-                    fontSize = 24.sp,
-
-                    shadow = Shadow(
-                        color = Color.Black,
-                        offset = Offset(2f, 2f),
-                        blurRadius = 2f
-                    )
+                Text(
+                    text = "Welcome, ${users?.displayName}",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f)
                 )
-            )
+
+                Card(
+                    modifier = Modifier
+                        .height(70.dp)
+                        .width(120.dp)
+                        .clickable { NavigateToPayment() },
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ),
+                    elevation = CardDefaults.cardElevation(6.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            Icons.Rounded.Payments,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(26.dp)
+                        )
+                        Text(
+                            "Payment",
+                            color = Color.White,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            if (list.isEmpty()) {
+
+            Text(
+                text = "Available Items",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+
+            if (items.isEmpty()) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No items found", fontSize = 18.sp)
+                    Text("No items available", color = Color.Gray)
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(list) { item ->
+                    items(items) { item ->
                         ItemCard1(item, viewModel)
                     }
                 }
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
 
 
-            Spacer(modifier = Modifier.height(35.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                BuyItems()
-            }
-
-            Spacer(modifier = Modifier.height(25.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(
-                    modifier = Modifier
-                        .size(130.dp)
-                        .background(Color.Black, shape = RoundedCornerShape(25.dp))
-                        .clickable { NavigateToViewItem() }
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.ViewList,
-                        contentDescription = "View Items",
-                        tint = Color.White,
-                        modifier = Modifier.size(34.dp)
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = "View Items",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 17.sp
-                    )
-                }
-
-                Column(
-                    modifier = Modifier
-                        .size(130.dp)
-                        .background(Color(0xFF00796B), shape = RoundedCornerShape(25.dp))
-                        .clickable { NavigateToPayment() }
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Payments,
-                        contentDescription = "Bills",
-                        tint = Color.White,
-                        modifier = Modifier.size(34.dp)
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = "Payment",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 17.sp
-                    )
-                }
-            }
+            // BuyItems()
         }
     }
+
 }
 
 
@@ -360,31 +320,95 @@ fun BuyItems(
 
     }
 }
+
 @Composable
-fun ItemCard1 (item: Items, viewModel: AppViewModel) {
+fun ItemCard1(item: Items, viewModel: AppViewModel) {
+    var currentItemQuantity by remember { mutableStateOf(0) }
+
+    val totalPrice = item.salesPrice * currentItemQuantity
+
+
+
 
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(6.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        modifier = Modifier
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        elevation = CardDefaults.cardElevation(8.dp),
 
-            Text(item.name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            Spacer(modifier = Modifier.height(6.dp))
+        ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                text = item.name,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Price: Rs ${item.salesPrice}")
-                Text("Qty: ${item.currentStock}")
+                Text(
+                    text = "Rs ${item.salesPrice}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Text(
+                    text = "Stock: ${item.currentStock}",
+                    fontSize = 14.sp,
+                    /*color = Color.Gray*/
+                )
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
-            Text("Date: ${item.date}", fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+            Divider()
 
 
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Quantity",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium
+                )
+
+                QuantitySelector(
+                    initialQuantity = currentItemQuantity,
+                    onQuantityChanged = { currentItemQuantity = it },
+                    minQuantity = 0,
+                    maxQuantity = item.currentStock
+                )
+            }
+
+            Divider()
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .padding(12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Total: Rs $totalPrice",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }
