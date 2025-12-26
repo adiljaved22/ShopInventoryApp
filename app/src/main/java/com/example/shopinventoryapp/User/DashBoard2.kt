@@ -1,6 +1,7 @@
 package com.example.shopinventoryapp.User
 
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +26,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Payments
 import androidx.compose.material.icons.rounded.Sell
 import androidx.compose.material.icons.rounded.ViewList
@@ -41,12 +44,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -82,28 +87,65 @@ import kotlinx.coroutines.flow.compose
 fun DashBoard2(
     Logout2: () -> Unit,
     navController: NavController,
+    NavigateToPayment: () -> Unit,
     NavigateToViewItem: () -> Unit,
     NavigateToSellItem: () -> Unit,
-    NavigateToPayment: () -> Unit,
     viewModel: AppViewModel = viewModel()
 ) {
-
     val currentUser = FirebaseAuth.getInstance().currentUser?.uid
     val users by viewModel.user.collectAsState(initial = Users())
     val items by viewModel.items.collectAsState(initial = emptyList())
     val context = LocalContext.current
+    var isSearching by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
     val sessionManager = SessionManager(context)
-
     LaunchedEffect(currentUser) {
         currentUser?.let { viewModel.getUsers(it) }
         viewModel.displayItems()
+    }
+    val cart = remember {
+        mutableStateMapOf<String, Int>()
+    }
+
+
+    val grandTotal = items.sumOf { item ->
+        val qty = cart[item.firestoreId] ?: 0
+        item.salesPrice * qty
+    }
+    val filtered = if (searchQuery.isBlank()) {
+        items
+    } else {
+        items.filter { it.name.contains(searchQuery,ignoreCase = true) }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Dashboard", fontWeight = FontWeight.Bold) },
+                title = {
+                    if (isSearching) {
+                        TextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            placeholder = { Text("Search...") },
+                            singleLine = true
+                        )
+                    } else {
+                        Text("DashBoard", fontSize = 20.sp, fontWeight = FontWeight.Medium)
+                    }
+                },
                 actions = {
+                    IconButton(onClick = {
+                        isSearching = !isSearching
+                        if (!isSearching) {
+                            searchQuery = ""
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search"
+                        )
+                    }
+
                     IconButton(onClick = {
                         Logout2()
                         sessionManager.logout()
@@ -176,179 +218,118 @@ fun DashBoard2(
             )
 
             Spacer(modifier = Modifier.height(10.dp))
-
-
-            if (items.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("No items available", color = Color.Gray)
-                }
+            if (filtered.isEmpty()) {
+                Text(
+                    text = "No users found",
+                    modifier = Modifier.padding(16.dp),
+                    fontSize = 16.sp
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(items) { item ->
-                        ItemCard1(item, viewModel)
+                    items(filtered) { item ->
+                        ItemCard1(
+                            item = item,
+                            quantity = cart[item.firestoreId] ?: 0,
+                            onQuantityChange = { newQty ->
+                                if (newQty == 0) {
+                                    cart.remove(item.firestoreId)
+                                } else {
+                                    cart[item.firestoreId] = newQty
+                                }
+                            }
+                        )
                     }
                 }
             }
-
             Spacer(modifier = Modifier.height(12.dp))
-
-
-            // BuyItems()
-        }
-    }
-
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BuyItems(
-    viewModel: AppViewModel = viewModel(),
-
-    ) {
-    LaunchedEffect(Unit) {
-        viewModel.displayItems()
-
-    }
-
-
-    var ItemName by remember { mutableStateOf("") }
-    var quantity by remember { mutableStateOf("") }
-    var isExpended by remember { mutableStateOf(false) }
-    var errorMsg by remember { mutableStateOf("") }
-
-    val list by viewModel.items.collectAsState(initial = emptyList())
-    var selectedItem by remember { mutableStateOf("") }
-    val context = LocalContext.current
-
-    Column(
-        modifier = Modifier
-
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        ExposedDropdownMenuBox(
-            expanded = isExpended,
-            onExpandedChange = { isExpended = !isExpended }
-        ) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
-                value = selectedItem,
-                onValueChange = {},
-                label = { Text("Select Item") },
-                readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpended) }
-
-            )
-
-            ExposedDropdownMenu(
-                expanded = isExpended,
-                onDismissRequest = { isExpended = false }
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                )
             ) {
-                list.filter { it.currentStock > 0 }.forEach { item ->
-                    DropdownMenuItem(
-                        text = { Text(text = item.name) },
-                        onClick = {
-                            selectedItem = item.name
-                            ItemName = item.name
-                            isExpended = false
-                        },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                Box(
+                    modifier = Modifier.padding(15.dp),
+                    contentAlignment = Alignment.CenterStart
+
+                ) {
+                    Text(
+                        text = "Grand Total: Rs $grandTotal",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.BottomEnd
+                    ) {
+                        Button(
+                            onClick = {
+                                if (cart.isEmpty()) {
+                                    Toast.makeText(context, "Cart is empty", Toast.LENGTH_SHORT)
+                                        .show()
+                                } else {
+
+
+                                    cart.forEach { (itemId, qty) ->
+                                        val item = items.firstOrNull { it.firestoreId == itemId }
+                                        if (item != null && qty > 0) {
+                                            viewModel.sellItem(
+                                                buyerDetails = BuyerDetails(
+                                                    requestedQuantity = qty,
+                                                    totalprice = item.salesPrice * qty
+                                                ),
+                                                item = item
+                                            )
+                                        }
+                                    }
+
+                                    Toast.makeText(context, "Order Placed", Toast.LENGTH_LONG)
+                                        .show()
+                                    cart.clear()
+                                }
+                            },
+                            modifier = Modifier
+                                .width(80.dp)
+                                .height(40.dp)
+                        )
+
+                        {
+                            Text("Buy")
+                        }
+                    }
                 }
             }
         }
-
-        OutlinedTextField(
-            value = quantity,
-            onValueChange = { quantity = it },
-            label = { Text("Quantity") },
-
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
-
-        )
-
-        if (errorMsg.isNotEmpty()) {
-            Text(text = errorMsg, color = Color.Red)
-        }
-
-        Button(onClick = {
-            val itemToSell = list.find { it.name == selectedItem }
-            val qty = quantity.toIntOrNull() ?: 0
-            val sale = itemToSell?.salesPrice ?: 0.0
-            val totalprice = (sale * qty)
-            quantity = ""
-            selectedItem = ""
-
-
-
-            when {
-                itemToSell == null -> errorMsg = "Please select an item"
-                qty <= 0 -> errorMsg = "Enter a valid quantity"
-                qty > itemToSell.currentStock -> errorMsg = "Out of Stock"
-
-
-                else -> {
-
-                    viewModel.sellItem(
-                        buyerDetails = BuyerDetails(
-
-                            itemName = ItemName,
-                            requestedQuantity = qty,
-                            totalprice = totalprice
-                        ),
-                        item = itemToSell,
-                    )
-
-                }
-            }
-        }) {
-
-            Text("Buy")
-        }
-
-
     }
 }
 
 @Composable
-fun ItemCard1(item: Items, viewModel: AppViewModel) {
-    var currentItemQuantity by remember { mutableStateOf(0) }
-
-    val totalPrice = item.salesPrice * currentItemQuantity
-
-
-
-
+fun ItemCard1(
+    item: Items,
+    quantity: Int,
+    onQuantityChange: (Int) -> Unit
+) {
+    val itemTotal = item.salesPrice * quantity
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
-        elevation = CardDefaults.cardElevation(8.dp),
-
-        ) {
+        elevation = CardDefaults.cardElevation(6.dp)
+    ) {
         Column(
-            modifier = Modifier
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+
             Text(
                 text = item.name,
-                fontSize = 20.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
-
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -363,17 +344,14 @@ fun ItemCard1(item: Items, viewModel: AppViewModel) {
 
                 Text(
                     text = "Stock: ${item.currentStock}",
-                    fontSize = 14.sp,
-                    /*color = Color.Gray*/
+                    fontSize = 14.sp
                 )
             }
 
             Divider()
 
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -382,9 +360,11 @@ fun ItemCard1(item: Items, viewModel: AppViewModel) {
                     fontWeight = FontWeight.Medium
                 )
 
+                Spacer(modifier = Modifier.weight(1f))
+
                 QuantitySelector(
-                    initialQuantity = currentItemQuantity,
-                    onQuantityChanged = { currentItemQuantity = it },
+                    initialQuantity = quantity,
+                    onQuantityChanged = { onQuantityChange(it) },
                     minQuantity = 0,
                     maxQuantity = item.currentStock
                 )
@@ -403,7 +383,7 @@ fun ItemCard1(item: Items, viewModel: AppViewModel) {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Total: Rs $totalPrice",
+                    text = "Total: Rs $itemTotal",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -412,3 +392,4 @@ fun ItemCard1(item: Items, viewModel: AppViewModel) {
         }
     }
 }
+

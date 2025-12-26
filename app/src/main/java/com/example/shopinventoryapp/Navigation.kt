@@ -47,7 +47,7 @@ fun Navigation(startDestination: String) {
                 navcontroller = navController,
                 viewModel = viewModel()
 
-                )
+            )
         }
         composable("UserLogin") {
             UserLogin(
@@ -183,15 +183,15 @@ fun Navigation(startDestination: String) {
             )
 
         }
-       /* composable("ViewItemsForBuyers") {
-            ViewItemsForBuyers(
-                onBackClick = { navController.popBackStack() },
-                viewModel = viewModel(),
-                NavigateToBuyerViewItem = {
-                    navController.navigate("ViewItemsForBuyers") {
-                        launchSingleTop = true
-                    }
-                })
-        }*/
+        /* composable("ViewItemsForBuyers") {
+             ViewItemsForBuyers(
+                 onBackClick = { navController.popBackStack() },
+                 viewModel = viewModel(),
+                 NavigateToBuyerViewItem = {
+                     navController.navigate("ViewItemsForBuyers") {
+                         launchSingleTop = true
+                     }
+                 })
+         }*/
     }
 }

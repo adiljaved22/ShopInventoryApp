@@ -3,12 +3,12 @@ package com.example.shopinventoryapp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,7 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun QuantitySelector(
@@ -28,13 +28,11 @@ fun QuantitySelector(
     minQuantity: Int = 0,
     maxQuantity: Int = Int.MAX_VALUE
 ) {
-
     var quantity by remember { mutableStateOf(initialQuantity) }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(4.dp) // ⬅ spacing kam
     ) {
 
         IconButton(
@@ -44,18 +42,20 @@ fun QuantitySelector(
                     onQuantityChanged(quantity)
                 }
             },
-            enabled = quantity > minQuantity
+            enabled = quantity > minQuantity,
+            modifier = Modifier.size(35.dp) // ⬅ chhota button
         ) {
             Icon(
                 imageVector = Icons.Default.Remove,
-                contentDescription = "Decrement"
+                contentDescription = "Decrement",
+                modifier = Modifier.size(16.dp) // ⬅ chhota icon
             )
         }
 
         Text(
             text = "$quantity",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            fontSize = 14.sp // ⬅ chhota text
         )
 
         IconButton(
@@ -65,12 +65,16 @@ fun QuantitySelector(
                     onQuantityChanged(quantity)
                 }
             },
-            enabled = quantity < maxQuantity
+            enabled = quantity < maxQuantity,
+            modifier = Modifier.size(35.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Increment"
+                contentDescription = "Increment",
+                modifier = Modifier.size(16.dp)
             )
         }
     }
 }
+
+
