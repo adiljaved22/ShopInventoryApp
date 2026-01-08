@@ -1,23 +1,11 @@
 package com.example.shopinventoryapp.User
 
-import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -27,32 +15,12 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Red
-import androidx.compose.ui.graphics.Color.Companion.Unspecified
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -63,16 +31,14 @@ import androidx.navigation.NavController
 import com.example.shopinventoryapp.R
 import com.example.shopinventoryapp.SessionManager
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.ktx.auth
 
-@Composable
 @OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun UserLogin(
-    navController: NavController,
-
-    ) {
+    navController: NavController
+) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
 
@@ -86,99 +52,80 @@ fun UserLogin(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        text = "Shop Inventory",
-                        fontWeight = FontWeight.Medium
-                    )
-                },
-                actions = {
+                title = { Text("Shop Inventory", fontWeight = FontWeight.Medium) },
+                navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.White
-                        )
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
-                )
+                }
             )
         }
-    ) { paddingValues ->
-
+    ) { padding ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .imePadding()
-
+                .padding(padding)
                 .padding(16.dp)
-                .padding(paddingValues),
-
+                .verticalScroll(rememberScrollState())
+                .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            Spacer(modifier = Modifier.height(40.dp))
+
             Image(
-                painterResource(id = R.drawable.loginlogo),
-                contentDescription = "Login_logo",
-                modifier = Modifier
-                    .size(width = 321.dp, height = 251.dp)
-                    .offset(x = 74.dp, y = 46.dp),
-                contentScale = ContentScale.Fit,
-                alpha = 1f
+                painter = painterResource(id = R.drawable.loginlogo),
+                contentDescription = null,
+                modifier = Modifier.size(220.dp)
             )
+
             Text(
-                text = "Welcome back",
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 28.sp,
+                text = "Welcome Back",
+                fontSize = 26.sp,
                 fontWeight = FontWeight.Bold
             )
 
             Text(
                 text = "Sign in to continue",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-
-                modifier = Modifier.padding(top = 4.dp, bottom = 32.dp)
+                modifier = Modifier.padding(bottom = 24.dp)
             )
 
-            // Email
+
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
                 label = {
                     Text(
                         text = emailError.ifEmpty { "Email" },
-                        color = if (emailError.isNotEmpty()) MaterialTheme.colorScheme.error
-                        else MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (emailError.isNotEmpty())
+                            MaterialTheme.colorScheme.error
+                        else
+                            MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 leadingIcon = {
                     Icon(Icons.Filled.Email, contentDescription = null)
-                }
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp)
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Password
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
                 label = {
                     Text(
                         text = passwordError.ifEmpty { "Password" },
-                        color = if (passwordError.isNotEmpty()) MaterialTheme.colorScheme.error
-                        else MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (passwordError.isNotEmpty())
+                            MaterialTheme.colorScheme.error
+                        else
+                            MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 leadingIcon = {
@@ -196,62 +143,84 @@ fun UserLogin(
                     }
                 },
                 visualTransformation =
-                    if (passwordVisible)
-                        VisualTransformation.None
-                    else
-                        PasswordVisualTransformation()
+                    if (passwordVisible) VisualTransformation.None
+                    else PasswordVisualTransformation(),
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp)
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Login Button
+
             Button(
                 onClick = {
+
                     emailError = when {
-                        email.isBlank() -> "Email is required"
-                        !isValidEmail(email) -> "Invalid email"
+                        email.isBlank() -> "Email required"
+                        !Patterns.EMAIL_ADDRESS.matcher(email).matches() ->
+                            "Invalid email"
                         else -> ""
                     }
+
                     passwordError = when {
-                        password.isBlank() -> "Password is required"
-                        password.length < 6 -> "Password must be at least 6 characters"
+                        password.isBlank() -> "Password required"
+                        password.length < 6 -> "Minimum 6 characters"
                         else -> ""
                     }
-                    if (emailError.isNotEmpty() || passwordError.isNotEmpty()) return@Button
+
+                    if (emailError.isNotEmpty() || passwordError.isNotEmpty())
+                        return@Button
 
                     isLoading = true
-                    Firebase.auth.signInWithEmailAndPassword(email, password)
+
+                    Firebase.auth
+                        .signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener { task ->
+
                             isLoading = false
+
                             if (task.isSuccessful) {
-                                sessionManager.saveUserLogin()
-                                navController.navigate("DashBoard2") {
-                                    popUpTo(0)
-                                    launchSingleTop = true
+
+                                val user = FirebaseAuth.getInstance().currentUser
+
+                                if (user?.isEmailVerified == true) {
+
+                                    sessionManager.saveUserLogin()
+
+                                    navController.navigate("DashBoard2") {
+                                        popUpTo(0)
+                                        launchSingleTop = true
+                                    }
+
+                                } else {
+
+                                    FirebaseAuth.getInstance().signOut()
+
+                                    Toast.makeText(
+                                        context,
+                                        "Please verify your email",
+                                        Toast.LENGTH_LONG
+                                    ).show()
                                 }
+
                             } else {
+
                                 Toast.makeText(
                                     context,
-                                    "Login failed",
-                                    Toast.LENGTH_SHORT
+                                    task.exception?.localizedMessage
+                                        ?: "Login failed",
+                                    Toast.LENGTH_LONG
                                 ).show()
                             }
                         }
                 },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                enabled = !isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
+                enabled = !isLoading,
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(
-                    text = "Login",
-                    fontWeight = FontWeight.Bold
-                )
+                Text("Login", fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -267,6 +236,17 @@ fun UserLogin(
                     }
                 )
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Forgot Password?",
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable {
+                    navController.navigate("Email")
+                }
+            )
         }
 
 
@@ -277,18 +257,12 @@ fun UserLogin(
                     .background(Color.Black.copy(alpha = 0.3f)),
                 contentAlignment = Alignment.Center
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = 5.dp
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("Please wait...", color = Color.White)
-                }
+                CircularProgressIndicator()
             }
         }
     }
 }
+
 
 
 fun isValidEmail(email: String): Boolean {

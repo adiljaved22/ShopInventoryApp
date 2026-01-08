@@ -264,12 +264,6 @@ fun ItemCard3(
                             }
                         }
                     }
-
-                    /*     Text(
-                             text = details.date ?: "",
-                             fontSize = 12.sp,
-                             color = Color.Gray
-                         )*/
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))

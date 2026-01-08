@@ -104,9 +104,9 @@ fun DashBoard1(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Text("Total Sales: $totalSales", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text("Total Sales: $totalSales PKR", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Text(
-                text = String.format("Total Profit: $ %.2f", totalProfit),
+                text = String.format("Total Profit: %.2f PKR", totalProfit),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )

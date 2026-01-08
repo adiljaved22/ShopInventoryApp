@@ -241,27 +241,50 @@ fun UserSignUp(
                     Firebase.auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
+
                                 val currentUser = FirebaseAuth.getInstance().currentUser
                                 val uid = currentUser?.uid
-                                println("DisplayName , ${displayName},Email,${email},uid,${uid}")
-                                viewModel.UserSignUp(displayName, email, "user", uid)
-                                NavigateToUserLogin()
-                                Toast.makeText(
-                                    context,
-                                    "Sign Up Successful",
-                                    Toast.LENGTH_SHORT
-                                )
-                                    .show()
+
+
+                                currentUser?.sendEmailVerification()
+                                    ?.addOnSuccessListener {
+
+
+                                        viewModel.UserSignUp(displayName, email, "user", uid)
+
+                                        Toast.makeText(
+                                            context,
+                                            "Verification email sent. Please verify your email.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+
+
+                                        FirebaseAuth.getInstance().signOut()
+
+                                        NavigateToUserLogin()
+                                    }
+                                    ?.addOnFailureListener { e ->
+                                        Toast.makeText(
+                                            context,
+                                            e.localizedMessage ?: "Verification email failed",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
 
                             } else {
-                                Toast.makeText(context, "Sign Up Failed", Toast.LENGTH_SHORT)
-                                    .show()
+
+                                Toast.makeText(
+                                    context,
+                                    task.exception?.localizedMessage ?: "Sign Up Failed",
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
                         }
 
+
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
+                    containerColor = MaterialTheme.colorScheme.surface,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 modifier = Modifier

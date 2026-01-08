@@ -11,35 +11,17 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shopinventoryapp.AppViewModel
 import com.example.shopinventoryapp.Items
-import com.example.shopinventoryapp.R
 import java.util.Calendar
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,40 +37,40 @@ fun AddItem(
     var unitPrice by remember { mutableStateOf("") }
     var salesPrice by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
+
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
 
+
+    val todayDate = remember {
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val month = calendar.get(Calendar.MONTH) + 1
+        val year = calendar.get(Calendar.YEAR)
+        "$day/$month/$year"
+    }
+
+
+    LaunchedEffect(Unit) {
+        date = todayDate
+    }
+
+
     LaunchedEffect(purchaseAmount, quantity) {
-        val purchaseAmount = purchaseAmount.toDoubleOrNull()
+        val purchase = purchaseAmount.toDoubleOrNull()
         val qty = quantity.toIntOrNull()
 
-        if (purchaseAmount != null && qty != null && qty > 0) {
-            val unit = purchaseAmount / qty
-            unitPrice = unit.toString()
-        } else {
-            unitPrice = ""
-        }
+        unitPrice = if (purchase != null && qty != null && qty > 0) {
+            (purchase / qty).toString()
+        } else ""
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
-                ),
                 title = { Text("Add Item") },
-
                 actions = {
                     IconButton(onClick = { onBackClick() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-
-                        )
-
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -100,6 +82,7 @@ fun AddItem(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+
             val datePickerDialog = DatePickerDialog(
                 context,
                 { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
@@ -109,17 +92,18 @@ fun AddItem(
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
             )
+
             OutlinedTextField(
                 value = date,
                 onValueChange = {},
                 label = { Text("Date") },
+                readOnly = true,
                 trailingIcon = {
                     IconButton(onClick = { datePickerDialog.show() }) {
                         Icon(Icons.Filled.CalendarToday, contentDescription = "Pick Date")
                     }
                 },
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true
+                modifier = Modifier.fillMaxWidth()
             )
 
             OutlinedTextField(
@@ -145,13 +129,12 @@ fun AddItem(
                 modifier = Modifier.fillMaxWidth()
             )
 
-
             OutlinedTextField(
                 value = unitPrice,
                 onValueChange = {},
-                label = { Text("Unit Price ") },
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true
+                label = { Text("Unit Price") },
+                readOnly = true,
+                modifier = Modifier.fillMaxWidth()
             )
 
             OutlinedTextField(
@@ -163,30 +146,18 @@ fun AddItem(
             )
 
             Button(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
                 onClick = {
-                    if (itemName.isNotEmpty() && purchaseAmount.isNotEmpty() && quantity.isNotEmpty() && salesPrice.isNotEmpty() && date.isNotEmpty() && unitPrice.isNotEmpty()) {
+                    if (
+                        itemName.isNotEmpty() &&
+                        purchaseAmount.isNotEmpty() &&
+                        quantity.isNotEmpty() &&
+                        salesPrice.isNotEmpty()
+                    ) {
                         val sales = salesPrice.toDoubleOrNull()
                         val unit = unitPrice.toDoubleOrNull()
 
-                        if (sales == null || unit == null) {
-                            Toast.makeText(
-                                context,
-                                "Invalid price entered",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@Button
-                        }
-
-                        if (sales <= 0) {
-                            Toast.makeText(
-                                context,
-                                "Sales price must be greater than 0",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@Button
-                        }
-
-                        if (sales <= unit) {
+                        if (sales == null || unit == null || sales <= unit) {
                             Toast.makeText(
                                 context,
                                 "Sales price must be greater than unit price",
@@ -194,26 +165,27 @@ fun AddItem(
                             ).show()
                             return@Button
                         }
+
                         viewModel.addItems(
                             Items(
                                 date = date,
                                 name = itemName,
-                                unitPrice = unitPrice.toDoubleOrNull() ?: 0.0,
+                                unitPrice = unit,
                                 currentStock = quantity.toInt(),
-                                salesPrice = salesPrice.toDoubleOrNull() ?: 0.0,
-                                purchasePrice = purchaseAmount.toDoubleOrNull() ?: 0.0
-
-
+                                salesPrice = sales,
+                                purchasePrice = purchaseAmount.toDouble()
                             )
-
                         )
-                        onBack()
+
                         Toast.makeText(context, "Item Added", Toast.LENGTH_SHORT).show()
+                        onBack()
                     } else {
                         Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
                     }
                 },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                colors = ButtonDefaults.buttonColors(
+                    MaterialTheme.colorScheme.surface
+                ),
             ) {
                 Text("Save")
             }

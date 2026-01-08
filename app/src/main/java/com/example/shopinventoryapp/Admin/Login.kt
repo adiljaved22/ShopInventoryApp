@@ -266,8 +266,8 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
 
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    
                 ),
                 enabled = !isLoading,
                 modifier = Modifier

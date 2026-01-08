@@ -112,7 +112,7 @@ fun ItemCard(item: Items, viewModel: AppViewModel) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Button(onClick = { showEditDialog = true }) {
+                Button(onClick = { showEditDialog = true },colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface)) {
                     Text("Edit")
                 }
                 Button(

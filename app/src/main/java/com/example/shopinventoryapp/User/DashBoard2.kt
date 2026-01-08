@@ -31,6 +31,7 @@ import androidx.compose.material.icons.rounded.Payments
 import androidx.compose.material.icons.rounded.Sell
 import androidx.compose.material.icons.rounded.ViewList
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -115,12 +116,18 @@ fun DashBoard2(
     val filtered = if (searchQuery.isBlank()) {
         items
     } else {
-        items.filter { it.name.contains(searchQuery,ignoreCase = true) }
+        items.filter { it.name.contains(searchQuery, ignoreCase = true) }
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                ),
                 title = {
                     if (isSearching) {
                         TextField(
@@ -183,7 +190,7 @@ fun DashBoard2(
                         .clickable { NavigateToPayment() },
                     shape = RoundedCornerShape(14.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primary
+                        containerColor = MaterialTheme.colorScheme.surface
                     ),
                     elevation = CardDefaults.cardElevation(6.dp)
                 ) {
@@ -292,6 +299,9 @@ fun DashBoard2(
                                     cart.clear()
                                 }
                             },
+                            colors = ButtonDefaults.buttonColors(
+                                MaterialTheme.colorScheme.surface
+                            ),
                             modifier = Modifier
                                 .width(80.dp)
                                 .height(40.dp)

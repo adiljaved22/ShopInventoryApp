@@ -183,15 +183,8 @@ fun Navigation(startDestination: String) {
             )
 
         }
-        /* composable("ViewItemsForBuyers") {
-             ViewItemsForBuyers(
-                 onBackClick = { navController.popBackStack() },
-                 viewModel = viewModel(),
-                 NavigateToBuyerViewItem = {
-                     navController.navigate("ViewItemsForBuyers") {
-                         launchSingleTop = true
-                     }
-                 })
-         }*/
+    composable("Email"){
+        Email(onBackClick = {},navController)
+    }
     }
 }
