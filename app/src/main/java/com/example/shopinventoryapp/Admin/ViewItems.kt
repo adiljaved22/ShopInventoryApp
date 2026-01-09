@@ -16,11 +16,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import com.example.shopinventoryapp.AppViewModel
 import com.example.shopinventoryapp.Items
 import com.example.shopinventoryapp.R
+import kotlin.io.path.fileVisitor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,110 +32,147 @@ fun ViewItems(
     onBackClick: () -> Unit,
 ) {
     val list by viewModel.items.collectAsState(initial = emptyList())
-
+    var isSearching by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
     LaunchedEffect(Unit) {
         viewModel.displayItems()
     }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
-                ),
-                title = { Text("Inventory Items") },
-
-                actions = {
-                    IconButton(onClick = { onBackClick() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-
+    val filtered = if (searchQuery.isBlank()) {
+        list
+    } else {
+        list.filter { it.name.contains(searchQuery, ignoreCase = true) }
+    }
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                        actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    title = {     if (isSearching) {
+                        TextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            placeholder = { Text("Search...") },
+                            singleLine = true
                         )
-
+                    } else {
+                        Text("Inventory Items")
                     }
-                })
-        }
-    ) { padding ->
-        if (list.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("No items found", fontSize = 18.sp)
+                    },
+
+                    actions = {
+                        IconButton(onClick = {
+                            isSearching = !isSearching
+                            if (!isSearching) {
+                                searchQuery = ""
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search"
+                            )
+                        }
+                    },
+
+                    navigationIcon = {
+                        IconButton(onClick = { onBackClick() }) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = "Back",
+
+                                )
+
+                        }
+                    })
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(list) { item ->
-                    ItemCard(item, viewModel)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ItemCard(item: Items, viewModel: AppViewModel) {
-    var showEditDialog by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(6.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-
-            Text(item.name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Price: Rs ${item.salesPrice}")
-                Text("Qty: ${item.currentStock}")
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-            Text("Date: ${item.date}", fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(onClick = { showEditDialog = true },colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface)) {
-                    Text("Edit")
-                }
-                Button(
-                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error),
-                    onClick = {
-                        viewModel.deleteItem(item.firestoreId)
-                    }
+        ) { padding ->
+            if (filtered.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("Delete")
+                    Text("No items found", fontSize = 18.sp)
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(filtered) { item ->
+                        ItemCard(item, viewModel)
+                    }
                 }
             }
         }
     }
 
-    if (showEditDialog) {
-        EditItemDialog(item, onDismiss = { showEditDialog = false }) { updatedItem ->
-            viewModel.updateItem(updatedItem)
-            showEditDialog = false
+
+    @Composable
+    fun ItemCard(item: Items, viewModel: AppViewModel) {
+        var showEditDialog by remember { mutableStateOf(false) }
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(6.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+
+                Text(item.name, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Price: Rs ${item.salesPrice}")
+                    Text("Qty: ${item.currentStock}")
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    "Date: ${item.date}",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Button(
+                        onClick = { showEditDialog = true },
+                        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface)
+                    ) {
+                        Text("Edit")
+                    }
+                    Button(
+                        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error),
+                        onClick = {
+                            viewModel.deleteItem(item.firestoreId)
+                        }
+                    ) {
+                        Text("Delete")
+                    }
+                }
+            }
+        }
+
+        if (showEditDialog) {
+            EditItemDialog(item, onDismiss = { showEditDialog = false }) { updatedItem ->
+                viewModel.updateItem(updatedItem)
+                showEditDialog = false
+            }
         }
     }
-}
 
 @Composable
 fun EditItemDialog(

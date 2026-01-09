@@ -158,6 +158,7 @@ fun DashBoard2(
                         sessionManager.logout()
                     }) {
                         Icon(Icons.Default.Logout, contentDescription = "Logout")
+
                     }
                 }
             )
@@ -227,7 +228,7 @@ fun DashBoard2(
             Spacer(modifier = Modifier.height(10.dp))
             if (filtered.isEmpty()) {
                 Text(
-                    text = "No users found",
+                    text = "No items found",
                     modifier = Modifier.padding(16.dp),
                     fontSize = 16.sp
                 )

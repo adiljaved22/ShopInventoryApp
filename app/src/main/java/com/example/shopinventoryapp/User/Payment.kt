@@ -97,7 +97,7 @@ fun Payment(
                         )
                     }
                 },
-                actions = {
+                navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,

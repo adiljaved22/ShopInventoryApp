@@ -115,17 +115,20 @@ fun UsersList(
                             contentDescription = "Search"
                         )
                     }
-
+                },
+                navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
 
-                        )
+                            )
+
                     }
                 }
             )
         }
+
     )
     { padding ->
         if (filteredUsers.isEmpty()) {
@@ -190,7 +193,7 @@ fun card(user: Users, onClick: () -> Unit) {
                 Text(
                     text = "View details",
                     fontSize = 14.sp,
-                    color = colorResource(id = R.color.teal_700),
+                    color = MaterialTheme.colorScheme.surface,
                     fontWeight = FontWeight.Medium
                 )
             }

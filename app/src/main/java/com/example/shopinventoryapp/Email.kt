@@ -59,21 +59,13 @@ fun Email(onBackClick: () -> Unit, navController: NavController) {
                 ),
                 title = {
                     Column {
-                        Text("Buyer Details", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                        Text(
-                            text = "Verification ",
-                            fontSize = 14.sp,
+                        Text("Forgot password", fontWeight = FontWeight.Medium, )
 
-                            )
                     }
                 },
-                actions = {
+                navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-
-                            )
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
             )

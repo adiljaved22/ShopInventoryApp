@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.rounded.AddTask
 import androidx.compose.material.icons.rounded.VerifiedUser
@@ -34,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -58,6 +61,7 @@ fun DashBoard1(
     LaunchedEffect(Unit) {
         viewModel.loadAdminBuyerDetails()
     }
+
     val totalSales by viewModel.adminTotalSales.collectAsState()
     val totalProfit by viewModel.adminTotalProfit.collectAsState()
     val context = LocalContext.current
@@ -79,17 +83,12 @@ fun DashBoard1(
                         fontWeight = FontWeight.Bold
                     )
                 },
-                actions = {
+                navigationIcon = {
                     IconButton(onClick = {
                         Logout()
                         sessionManager.logout()
                     }) {
-                        Icon(
-                            imageVector = Icons.Default.Logout,
-                            contentDescription = "Back",
-
-                        )
-
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -106,7 +105,7 @@ fun DashBoard1(
 
             Text("Total Sales: $totalSales PKR", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Text(
-                text = String.format("Total Profit: %.2f PKR", totalProfit),
+                text = String.format("  Total Profit: %.2f PKR", totalProfit),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )

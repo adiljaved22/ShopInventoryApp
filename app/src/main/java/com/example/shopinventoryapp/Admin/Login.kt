@@ -64,7 +64,7 @@ fun Login(navcontroller: NavController, viewModel: AppViewModel) {
                         fontWeight = FontWeight.Medium
                     )
                 },
-                actions = {
+               navigationIcon = {
                     IconButton(onClick = { navcontroller.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,

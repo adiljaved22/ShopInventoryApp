@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -31,6 +32,7 @@ fun AddItem(
     viewModel: AppViewModel = viewModel(),
     onBackClick: () -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
     var itemName by remember { mutableStateOf("") }
     var purchaseAmount by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
@@ -68,7 +70,7 @@ fun AddItem(
         topBar = {
             TopAppBar(
                 title = { Text("Add Item") },
-                actions = {
+                navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
@@ -148,6 +150,7 @@ fun AddItem(
             Button(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 onClick = {
+
                     if (
                         itemName.isNotEmpty() &&
                         purchaseAmount.isNotEmpty() &&
@@ -176,9 +179,16 @@ fun AddItem(
                                 purchasePrice = purchaseAmount.toDouble()
                             )
                         )
+                        itemName = ""
+                        purchaseAmount = ""
+                        quantity = ""
+                        unitPrice = ""
+                        salesPrice = ""
+                        focusManager.clearFocus()
+
 
                         Toast.makeText(context, "Item Added", Toast.LENGTH_SHORT).show()
-                        onBack()
+
                     } else {
                         Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
                     }

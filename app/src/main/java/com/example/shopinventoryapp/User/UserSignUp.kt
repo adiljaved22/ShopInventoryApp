@@ -90,12 +90,11 @@ fun UserSignUp(
                 ),
                 title = { Text("Shop Inventory", fontWeight = FontWeight.Medium) },
 
-                actions = {
+                navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.White
                         )
 
                     }
